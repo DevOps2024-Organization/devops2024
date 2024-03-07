@@ -3,7 +3,7 @@ on:
   push:
     # Run workflow every time something is pushed to the main branch
     branches:
-      - githubActions
+      - ft/githubActions
   # allow manual triggers for now too
   workflow_dispatch:
     manual: true
