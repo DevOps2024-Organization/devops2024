@@ -5,6 +5,7 @@ on:
     branches:
       - ft/githubActions
   # allow manual triggers for now too
+  
   workflow_dispatch:
     manual: true
 
