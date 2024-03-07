@@ -46,6 +46,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
+          
       - name: Run api
         run: |
           make postgrestestinit
