@@ -7,7 +7,7 @@ from pathlib import Path
 from contextlib import closing
 
 
-BASE_URL = 'http://104.248.43.157:5000'
+BASE_URL = 'http://localhost:5000'
 USERNAME = 'simulator'
 PWD = 'super_safe!'
 CREDENTIALS = ':'.join([USERNAME, PWD]).encode('ascii')
