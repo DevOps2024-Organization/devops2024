@@ -57,6 +57,7 @@ jobs:
           done
           cd api
           pytest api_test.py
+          
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
