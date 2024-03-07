@@ -3,7 +3,7 @@ on:
   push:
     # Run workflow every time something is pushed to the main branch
     branches:
-      - main
+      - githubActions
   # allow manual triggers for now too
   workflow_dispatch:
     manual: true
@@ -15,10 +15,6 @@ on:
 # SSH_USER
 # SSH_KEY
 # SSH_HOST
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -40,32 +36,52 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwitimage:webbuildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwitimage:webbuildcache,mode=max
 
-      - name: Test minitwit
-        run: |
-          make dropdb
-          make createdb
-          docker build -t $DOCKER_USERNAME:latest -f ../api/Dockerfile-tests .
-          docker run  $DOCKER_USERNAME:latest
+      - name: Build and push minitwitapi
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./api/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
         env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          SSH_USER: ${{ secrets.SSH_USER }}
 
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version:  3.9.18
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run api
+        run: |
+          make postgrestestinit
+          sleep 10
+          make createdbtest
+          go run api/api.go -test true &
+          until curl -s http://localhost:5000/health > /dev/null; do
+            sleep 1
+          done
+          cd api
+          pytest api_test.py
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/do_ssh_key
+          echo "dop_v1_df0ad6048853a49c3ff99c6d037601a2d9787f5c4a6dec8b07e875552c47d861" > ~/.ssh/do_ssh_key
           chmod 600 ~/.ssh/do_ssh_key
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+
 
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: >
-          ssh $SSH_USER@$SSH_HOST
+          ssh root$104.248.43.157
           -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no
-          '/minitwit/deploy.sh'
+          docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
+          docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
+          docker run -d ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest -p 8080:8080 minitwit-app
+          docker run -d ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest-p 5000:5000 minitwit-api
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}

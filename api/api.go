@@ -9,7 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
-  // "encoding/json"
+	"flag"
+	// "encoding/json"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -28,7 +29,7 @@ type APIMessage struct {
 }
 
 type FollowerListStruct struct {
-  Follows []string `json:"follows"`  
+	Follows []string `json:"follows"`
 }
 
 var DB *gorm.DB
@@ -99,19 +100,19 @@ func ValidRegistration(c *gin.Context, username string, email string, password1 
 }
 
 func ConvertToAPIMessage(messages []model.Message) []APIMessage {
-  var apiMessages []APIMessage
+	var apiMessages []APIMessage
 
-  for _, msg := range messages {
-    apiMessage := APIMessage {
+	for _, msg := range messages {
+		apiMessage := APIMessage {
 			User:      msg.Author,
 			CreatedAt: msg.CreatedAt.Format(time.RFC3339),
 			Flagged:   msg.Flagged,
 			MessageID: int(msg.MessageID),
 			Content:   msg.Text,
-    }
-    apiMessages = append(apiMessages, apiMessage)
-  }
-  return apiMessages
+		}
+		apiMessages = append(apiMessages, apiMessage)
+	}
+	return apiMessages
 }
 
 func SignUp(c *gin.Context) {
@@ -170,33 +171,33 @@ func GetUser(username string) model.User {
 }
 
 func GetMessages(user string, no int) []APIMessage {
-    var messages []model.Message
+	var messages []model.Message
 
-    query := DB.Table("messages").Order("created_at desc").Limit(no)
-    if user != "" {
-        query = query.Where("author = ?", user)
-    }
-    query.Find(&messages)
+	query := DB.Table("messages").Order("created_at desc").Limit(no)
+	if user != "" {
+		query = query.Where("author = ?", user)
+	}
+	query.Find(&messages)
 
-    apiMessages := ConvertToAPIMessage(messages)
-    return apiMessages
+	apiMessages := ConvertToAPIMessage(messages)
+	return apiMessages
 }
 
 func GetFollowers(user uint) []string {
-    var usernames []string
-    err := DB.Model(&model.User{}).
-      Select("users.username").
-      Joins("JOIN follows ON follows.following = users.id").
-      Where("follows.follower = ?", user).
-      Pluck("users.username", &usernames).Error
+	var usernames []string
+	err := DB.Model(&model.User{}).
+		Select("users.username").
+		Joins("JOIN follows ON follows.following = users.id").
+		Where("follows.follower = ?", user).
+		Pluck("users.username", &usernames).Error
 
-    if err != nil {
-      log.Printf("Error finding followers: %v", err)
-      return nil
-    }
+	if err != nil {
+		log.Printf("Error finding followers: %v", err)
+		return nil
+	}
 
-    
-    return usernames
+
+	return usernames
 }
 
 func GetFollower(follower uint, following uint) bool {
@@ -210,13 +211,13 @@ func GetFollower(follower uint, following uint) bool {
 }
 
 func Follow(followerID uint, followeeID uint) *gorm.DB {
-  follow := model.Follow{Follower: followerID, Following: followeeID}
-  err := DB.Create(&follow)
+	follow := model.Follow{Follower: followerID, Following: followeeID}
+	err := DB.Create(&follow)
 	return err
 }
 
 func Unfollow(follower uint, followee uint) *gorm.DB {
-  err := DB.Delete(&model.Follow{}, model.Follow{Follower: follower, Following: followee})
+	err := DB.Delete(&model.Follow{}, model.Follow{Follower: follower, Following: followee})
 	return err
 }
 
@@ -264,7 +265,14 @@ func Latest(c *gin.Context) {
 }
 
 func main() {
-	if err := godotenv.Load(".env"); err != nil {
+	var isTest bool
+	flag.BoolVar(&isTest,"test",false,"Set true if is test")
+	flag.Parse()
+	var envPath string = ".env"
+	if isTest  {
+		envPath = ".env-test"
+	}
+	if err := godotenv.Load(envPath); err != nil {
 		log.Fatalf("Error loading .env file")
 	}
 
@@ -294,14 +302,14 @@ func main() {
 		if err != nil {
 			no = 100
 		}
-    var data []APIMessage
+		var data []APIMessage
 		if user == "" {
 			data = GetMessages("", no)
 		} else {
 			data = GetMessages(user, no)
 		}
 		if len(data) == 0 {
-      c.Status(http.StatusNoContent)
+			c.Status(http.StatusNoContent)
 		} else {
 			c.JSON(http.StatusOK, data)
 		}
@@ -330,13 +338,13 @@ func main() {
 
 	router.GET("/fllws/:usr", (func(c *gin.Context) {
 		Latest(c)
-    user := GetUser(strings.Trim(c.Param("usr"), "/"))
+		user := GetUser(strings.Trim(c.Param("usr"), "/"))
 		if user.ID == 0 {
 			c.JSON(404, gin.H{"error": "user not found"})
 			return
 		} else {
-      followerList := GetFollowers(user.ID)
-      followerListResponse := FollowerListStruct{Follows: followerList}
+			followerList := GetFollowers(user.ID)
+			followerListResponse := FollowerListStruct{Follows: followerList}
 			c.JSON(http.StatusOK, followerListResponse)
 			return
 		}
@@ -344,7 +352,7 @@ func main() {
 
 	router.POST("/fllws/:usr", (func(c *gin.Context) {
 		Latest(c)
-    user := GetUser(strings.Trim(c.Param("usr"), "/"))
+		user := GetUser(strings.Trim(c.Param("usr"), "/"))
 		if user.ID == 0 {
 			c.JSON(404, gin.H{"error": "user not found"})
 			return
@@ -355,9 +363,9 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-  
+
 		if follow.Follow != "" {
-      followee := GetUser(follow.Follow)
+			followee := GetUser(follow.Follow)
 			err := Follow(user.ID, followee.ID)
 			if err.Error != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": ""})
@@ -366,13 +374,13 @@ func main() {
 			c.JSON(http.StatusCreated, gin.H{})
 			return
 		} else if follow.Unfollow != "" {
-      unfollowee := GetUser(follow.Unfollow)
+			unfollowee := GetUser(follow.Unfollow)
 			err := Unfollow(user.ID, unfollowee.ID)
 			if err.Error != nil {
 				c.JSON(403, gin.H{"error": ""})
 				return
 			}
-      c.Status(http.StatusNoContent)
+			c.Status(http.StatusNoContent)
 			return
 		} else if len(follow.Latest) > 0 {
 			latest, err := strconv.Atoi(follow.Latest[0])
@@ -389,7 +397,7 @@ func main() {
 
 	}))
 
-  err := router.Run(":5000")
+	err := router.Run(":5000")
 	if err != nil {
 		panic(err)
 	}

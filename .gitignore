@@ -21,8 +21,7 @@ db/
 # VS Code Remote Containers
 .devcontainer
 
-# environment variables
-.env
+
 
 
 # pycache
