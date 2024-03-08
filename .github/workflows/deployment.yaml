@@ -76,6 +76,7 @@ jobs:
           echo "folder"
           ls
           docker ps
+          
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
           docker run -d --name minitwit-app-instance -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
