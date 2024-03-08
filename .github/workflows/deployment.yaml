@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - ft/githubActions
+      
 
 jobs:
   build:
