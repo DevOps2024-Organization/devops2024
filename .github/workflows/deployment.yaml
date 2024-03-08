@@ -79,10 +79,9 @@ jobs:
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: |
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no 
-          source ~/.bash_profile
-          cd /vagrant
-          docker compose -f docker-compose.yml pull
-          docker compose -f docker-compose.yml up -d
+          pwd
+          docker compose -f /vagrant/docker-compose.yml pull
+          docker compose -f /vagrant/docker-compose.yml up -d
           
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
