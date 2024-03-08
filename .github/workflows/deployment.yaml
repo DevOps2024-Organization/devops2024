@@ -69,7 +69,7 @@ jobs:
           
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
-        run: >
+        run: |
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no
           cd ../vagrant
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
