@@ -4,12 +4,21 @@ on:
     branches:
       - ft/githubActions
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -70,20 +79,12 @@ jobs:
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: |
-          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no 
-          source ~/.bash_profile
-          ls 
-          echo "folder"
-          ls
-          docker ps
+          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f /vagrant/docker-compose.yml pull && docker compose -f /vagrant/docker-compose.yml up -d"
           
-          docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
-          docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
-          docker run -d --name minitwit-app-instance -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
-          docker run -d --name minitwit-api-instance -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
       - name: Create Release
         id: create_release

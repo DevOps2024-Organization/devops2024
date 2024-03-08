@@ -142,23 +142,17 @@ Vagrant.configure("2") do |config|
         docker run --rm hello-world
         docker rmi hello-world
 
+        ufw allow 5000
+        ufw allow 8080
+
         # Change directory to the vagrant directory
-        cd /vagrant
+        # cd /vagrant
 
-        # Build web app docker image
-        docker build -t minitwit-app .
+        # Build webserver docker container
+        # docker compose -f docker-compose.yml up -d
 
-        # Build API docker image
-        docker build -t minitwit-api -f api/Dockerfile .
-
-        # Run web app docker container
-        docker run -d --name minitwit-app-instance -p 8080:8080 minitwit-app
-
-        # Run API docker container
-        docker run -d --name minitwit-api-instance -p 5000:5000 minitwit-api
-
-        echo "Webserver is running at: http://$(hostname -I | awk '{print $1}'):8080"
-        echo "API is running at: http://$(hostname -I | awk '{print $1}'):5000"
+        echo "Webserver will run at: http://$(hostname -I | awk '{print $1}'):8080"
+        echo "API will run at: http://$(hostname -I | awk '{print $1}'):5000"
       SHELL
     end
 end

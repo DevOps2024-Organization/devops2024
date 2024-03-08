@@ -1,13 +1,13 @@
 version: "3.8"
 services:
   app:
-    image: fujiemei02/minitwitimage
+    image: 2rius/minitwitimage
     container_name: minitwit-app-instance
     ports:
       - "8080:8080"
 
   api:
-    image: fujiemei02/minitwitapi
+    image: 2rius/minitwitapi
     container_name: minitwit-api-instance
     ports:
       - "5000:5000"
