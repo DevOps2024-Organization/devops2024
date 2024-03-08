@@ -1,24 +1,14 @@
 version: "3.8"
 services:
   app:
-    build: .
+    image: fujiemei02/minitwitimage
+    container_name: minitwit-app-instance
     ports:
       - "8080:8080"
-    depends_on:
-      - db
-    env_file:
-      - .env
 
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: minitwit
+  api:
+    image: fujiemei02/minitwitapi
+    container_name: minitwit-api-instance
     ports:
-      - "5433:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
-volumes:
-  db_data:
+      - "5000:5000"
+    
