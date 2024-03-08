@@ -142,6 +142,9 @@ Vagrant.configure("2") do |config|
         docker run --rm hello-world
         docker rmi hello-world
 
+        ufw allow 5000
+        ufw allow 8080
+
         # Change directory to the vagrant directory
         # cd /vagrant
 
