@@ -82,7 +82,6 @@ jobs:
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no 
           source ~/.bash_profile
           cd /vagrant
-
           docker compose -f docker-compose.yml pull
           docker compose -f docker-compose.yml up -d
           
