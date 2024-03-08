@@ -71,8 +71,7 @@ jobs:
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: >
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no
-          cd ..
-          cd vagrant
+          cd ../vagrant
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
           docker run -d --name minitwit-app-instance -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
