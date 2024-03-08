@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - ft/githubActions
-      
 
 jobs:
   build:
@@ -73,7 +72,10 @@ jobs:
         run: |
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no 
           source ~/.bash_profile
-          docker stop $(docker ps -q)
+          docker stop minitwit-app-instance
+          docker stop minitwit-api-instance
+          docker rm minitwit-app-instance
+          docker rm minitwit-api-instance
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
           docker run -d --name minitwit-app-instance -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
