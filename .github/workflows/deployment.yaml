@@ -73,8 +73,8 @@ jobs:
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
           docker pull ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
-          docker run -d --name minitwit-app-instance -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
-          docker run -d --name minitwit-api-instance -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
+          docker run --name minitwit-app-instance -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
+          docker run --name minitwit-api-instance -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
