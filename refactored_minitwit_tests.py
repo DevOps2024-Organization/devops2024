@@ -11,7 +11,6 @@
 """
 import requests
 
-
 # import schema schema.sql
 # import data
 # otherwise use the database that you got previously
