@@ -1,18 +1,18 @@
 # Build Go API
-FROM golang:1.18 as builder
+FROM golang:latest as builder
 
 # Set Current Working Directory inside the container
 WORKDIR /app
 
 # Copy mod and sum files
-COPY go.mod go.sum ./
+COPY ../go.mod ../go.sum ./
 
 # Download Dependencies
 RUN go mod download
 
 # Copy source from current to Working Directory
 COPY . .
-COPY .env /app/
+COPY ../.env /app/
 
 
 # Build Go app
@@ -28,7 +28,7 @@ COPY --from=builder /app/api .
 COPY --from=builder /app/.env .
 
 # Expose port 8080
-EXPOSE 8080
+EXPOSE 5000
 
 # Run the excutable
 CMD ["./api"]

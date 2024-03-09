@@ -6,13 +6,35 @@ import (
 	"log"
 	"os"
 	"time"
+  "strconv"
 
+  "github.com/prometheus/client_golang/prometheus"
+  "github.com/prometheus/client_golang/prometheus/promauto"
+  "github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/penglongli/gin-metrics/ginmetrics"
 	controller "minitwit.com/devops/src/controller"
 	database "minitwit.com/devops/src/database"
 	model "minitwit.com/devops/src/models"
+)
+
+var (
+    httpRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+        Name: "api_http_requests_total",
+        Help: "Total number of HTTP requests.",
+    }, []string{"method", "endpoint", "status_code"})
+
+    requestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+        Name:    "api_request_duration_seconds",
+        Help:    "Duration of HTTP requests in seconds.",
+        Buckets: prometheus.DefBuckets,
+    }, []string{"method", "endpoint"})
+
+    inFlightRequests = promauto.NewGauge(prometheus.GaugeOpts{
+        Name: "api_in_flight_requests",
+        Help: "Current number of in-flight requests.",
+    })
 )
 
 func getGinMetrics(router *gin.Engine) {
@@ -27,6 +49,27 @@ func getGinMetrics(router *gin.Engine) {
 	m.SetDuration([]float64{0.1, 0.3, 1.2, 5, 10})
 	// set middleware for gin
 	m.Use(router)
+}
+
+func PrometheusMiddleware() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        // Increment in-flight requests gauge
+        inFlightRequests.Inc()
+
+        start := time.Now()
+        c.Next() // Process request
+        duration := time.Since(start)
+
+        // Decrement in-flight requests gauge
+        inFlightRequests.Dec()
+
+        status := strconv.Itoa(c.Writer.Status())
+        endpoint := c.Request.URL.Path // Or use c.FullPath() for matching route
+        method := c.Request.Method
+
+        httpRequestsTotal.WithLabelValues(method, endpoint, status).Inc()
+        requestDuration.WithLabelValues(method, endpoint).Observe(duration.Seconds())
+    }
 }
 
 func formatAsDate(t time.Time) string {
@@ -49,6 +92,12 @@ func main() {
 	database.SetupDB()
 
 	router := gin.Default()
+
+  router.Use(PrometheusMiddleware())
+
+  // Expose the metrics endpoint
+  router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
 	router.SetFuncMap(template.FuncMap{
 		"formatAsDate": formatAsDate,
 		"getUserId":    GetUserID,

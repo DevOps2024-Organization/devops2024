@@ -12,6 +12,9 @@ import (
 	"flag"
 	// "encoding/json"
 
+  "github.com/prometheus/client_golang/prometheus"
+  "github.com/prometheus/client_golang/prometheus/promauto"
+  "github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
@@ -19,6 +22,45 @@ import (
 	"gorm.io/gorm"
 	model "minitwit.com/devops/src/models"
 )
+
+var (
+    httpRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+        Name: "api_http_requests_total",
+        Help: "Total number of HTTP requests.",
+    }, []string{"method", "endpoint", "status_code"})
+
+    requestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+        Name:    "api_request_duration_seconds",
+        Help:    "Duration of HTTP requests in seconds.",
+        Buckets: prometheus.DefBuckets,
+    }, []string{"method", "endpoint"})
+
+    inFlightRequests = promauto.NewGauge(prometheus.GaugeOpts{
+        Name: "api_in_flight_requests",
+        Help: "Current number of in-flight requests.",
+    })
+)
+
+func PrometheusMiddleware() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        // Increment in-flight requests gauge
+        inFlightRequests.Inc()
+
+        start := time.Now()
+        c.Next() // Process request
+        duration := time.Since(start)
+
+        // Decrement in-flight requests gauge
+        inFlightRequests.Dec()
+
+        status := strconv.Itoa(c.Writer.Status())
+        endpoint := c.Request.URL.Path // Or use c.FullPath() for matching route
+        method := c.Request.Method
+
+        httpRequestsTotal.WithLabelValues(method, endpoint, status).Inc()
+        requestDuration.WithLabelValues(method, endpoint).Observe(duration.Seconds())
+    }
+}
 
 type APIMessage struct {
 	User      string `json:"user"`
@@ -279,6 +321,11 @@ func main() {
 	SetupDB()
 
 	router := gin.Default()
+  // Register Prometheus middleware
+  router.Use(PrometheusMiddleware())
+
+  // Expose the metrics endpoint
+  router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	//API ENDPOINTS ADDED
 	router.GET("/", (func(c *gin.Context) {
@@ -371,7 +418,7 @@ func main() {
 				c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 				return
 			}
-			c.JSON(http.StatusCreated, gin.H{})
+			c.JSON(http.StatusNoContent, gin.H{})
 			return
 		} else if follow.Unfollow != "" {
 			unfollowee := GetUser(follow.Unfollow)

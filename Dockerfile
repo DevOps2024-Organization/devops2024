@@ -1,5 +1,5 @@
 # Use the same build stage as before to compile your application
-FROM golang:1.18 as builder
+FROM golang:latest as builder
 
 WORKDIR /app
 COPY go.mod go.sum ./
