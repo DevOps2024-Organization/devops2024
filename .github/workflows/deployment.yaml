@@ -40,7 +40,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Test app
-        run:
+        run: |
           make postgrestestinit
           sleep 10
           make createdbtest
