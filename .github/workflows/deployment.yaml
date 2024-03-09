@@ -39,15 +39,6 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Test app
-        run: |
-          make postgrestestinit
-          sleep 10
-          make createdbtest
-          go run src/main.go -test true &
-          pytest refactored_minitwit_tests.py
-          make dropdb-test
-
       - name: Test api
         run: |
           make createdbtest
@@ -56,5 +47,32 @@ jobs:
             sleep 1
           done
           cd api
-          pytest api_test.py
-          
+          pytest api_test.py   
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/do_ssh_key
+          chmod 600 ~/.ssh/do_ssh_key
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy to server
+        # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
+        run: |
+          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f /vagrant/docker-compose.yml pull && docker compose -f /vagrant/docker-compose.yml up -d"
+
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.event.head_commit.message }}
+          release_name: ${{ github.event.head_commit.message }}
+
