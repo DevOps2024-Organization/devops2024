@@ -1,5 +1,6 @@
 name: Continuous Deployment
 on:
+  workflow_dispatch:
   push:
     branches:
       - ft/githubActions
@@ -14,7 +15,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
+          echo "DB_HOST=db" > .env
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
@@ -47,6 +48,14 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
 
+      - name: Build and push test database
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./database/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/db
+
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
@@ -58,10 +67,10 @@ jobs:
           
       - name: Run api
         run: |
-          make postgrestestinit
+          docker network ls | grep minitwit-network || docker network create minitwit-network
+          docker run -d --name db -p 8080:5432 ${{ secrets.DOCKER_USERNAME }}/db
           sleep 10
-          make createdbtest
-          go run api/api.go -test true &
+          docker compose up -d
           until curl -s http://localhost:5000/health > /dev/null; do
             sleep 1
           done
@@ -74,30 +83,33 @@ jobs:
           echo "$SSH_KEY" > ~/.ssh/do_ssh_key
           chmod 600 ~/.ssh/do_ssh_key
         env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
           
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: |
-          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f /vagrant/docker-compose.yml pull && docker compose -f /vagrant/docker-compose.yml up -d"
+          sed -i "s/DB_HOST=db/DB_HOST=${DB_HOST_SECRET}/g" .env
+          scp -i ~/.ssh/do_ssh_key docker-compose.yml prometheus.yml .env $SSH_USER@$SSH_HOST:~
+          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f ~/docker-compose.yml pull && docker compose -f ~/docker-compose.yml up -d"
           
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DB_HOST_SECRET: ${{ secrets.DB_HOST }}
 
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: v1.2.1
-          release_name: Release v1.2.1
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: false
-          prerelease: false
+      # - name: Create Release
+      #   id: create_release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      #   with:
+      #     tag_name: v1.2.1
+      #     release_name: Release v1.2.1
+      #     body: |
+      #       Changes in this Release
+      #       - First Change
+      #       - Second Change
+      #     draft: false
+      #     prerelease: false
