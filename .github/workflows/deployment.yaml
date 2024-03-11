@@ -16,7 +16,7 @@ jobs:
       - name: Create .env file
         run: |
           echo "DB_HOST=db" > .env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+          echo "DB_PORT=5432" >> .env
           echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
@@ -89,6 +89,7 @@ jobs:
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: |
           sed -i "s/DB_HOST=db/DB_HOST=${DB_HOST_SECRET}/g" .env
+          sed -i "s/DB_PORT=5432/DB_PORT=${DB_PORT_SECRET}/g" .env
           scp -i ~/.ssh/do_ssh_key docker-compose.yml prometheus.yml .env $SSH_USER@$SSH_HOST:~
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f ~/docker-compose.yml pull && docker compose -f ~/docker-compose.yml up -d"
           
@@ -97,6 +98,7 @@ jobs:
           SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DB_HOST_SECRET: ${{ secrets.DB_HOST }}
+          DB_PORT_SECRET: ${{ secrets.DB_PORT}}
 
 
       # - name: Create Release
