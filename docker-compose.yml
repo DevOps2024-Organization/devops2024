@@ -12,7 +12,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - db:
+          condition: service_healthy
 
   api:
     image: 2rius/minitwitapi
@@ -26,7 +27,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - db:
+          condition: service_healthy
 
   db:
     image: 2rius/db
@@ -39,6 +41,11 @@ services:
       - minitwit-network
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $DB_USER -d $DB_DATABASE"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   prometheus:
     image: prom/prometheus
