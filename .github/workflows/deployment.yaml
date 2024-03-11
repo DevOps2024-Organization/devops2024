@@ -93,7 +93,7 @@ jobs:
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
           scp -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no docker-compose.yml prometheus.yml .env $SSH_USER@$SSH_HOST:/minitwit/
-          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f ~/docker-compose.yml pull && docker compose -f ~/docker-compose.yml up -d"
+          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f /minitwit/docker-compose.yml pull && docker compose -f /minitwit/docker-compose.yml up -d"
           
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
