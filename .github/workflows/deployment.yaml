@@ -109,7 +109,7 @@ jobs:
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f /vagrant/docker-compose.yml pull && docker compose -f /vagrant/docker-compose.yml up -d"
           sed -i "s/DB_HOST=db/DB_HOST=${DB_HOST_SECRET}/g" .env
           sed -i "s/DB_PORT=5432/DB_PORT=${DB_PORT_SECRET}/g" .env
-          scp -i ~/.ssh/do_ssh_key docker-compose.yml prometheus.yml .env $SSH_USER@$SSH_HOST:~
+          scp -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no docker-compose.yml prometheus.yml .env $SSH_USER@$SSH_HOST:~
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose -f ~/docker-compose.yml pull && docker compose -f ~/docker-compose.yml up -d"
           
         env:
