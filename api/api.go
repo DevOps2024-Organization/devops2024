@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"flag"
+	// "flag"
 	// "encoding/json"
 
   "github.com/prometheus/client_golang/prometheus"
