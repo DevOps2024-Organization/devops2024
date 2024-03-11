@@ -11,6 +11,8 @@ services:
       - minitwit-network
     env_file:
       - .env
+    depends_on:
+      - db
 
   api:
     image: 2rius/minitwitapi
@@ -23,6 +25,8 @@ services:
       - minitwit-network
     env_file:
       - .env
+    depends_on:
+      - db
 
   db:
     image: 2rius/db
