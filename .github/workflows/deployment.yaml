@@ -69,7 +69,7 @@ jobs:
         run: |
           docker network ls | grep minitwit-network || docker network create minitwit-network
           docker build -t database -f ./database/Dockerfile .
-          docker run -d --name db --network minitwit-network -p 5432:5432 db
+          docker run -d --name db --network minitwit-network -p 5432:5432 database
           sleep 10
           docker compose up -d
           max_attempts=5
