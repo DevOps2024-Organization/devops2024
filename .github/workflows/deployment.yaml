@@ -68,7 +68,8 @@ jobs:
       - name: Run api
         run: |
           docker network ls | grep minitwit-network || docker network create minitwit-network
-          docker run -d --name db --network minitwit-network -p 5432:5432 ${{ secrets.DOCKER_USERNAME }}/db
+          docker build -t db -f ./database/Dockerfile .
+          docker run -d --name db --network minitwit-network -p 5432:5432 db
           sleep 10
           docker compose up -d
           until curl -s http://localhost:5000/health > /dev/null; do
