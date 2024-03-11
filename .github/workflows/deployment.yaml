@@ -72,6 +72,7 @@ jobs:
           # sleep 10
           docker compose up -d
           until curl -s http://localhost:5000/health > /dev/null; do
+            docker logs minitwit-api-instance
             sleep 1
           done
           cd api
