@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
+	// "log"
 	"os"
 	"time"
   "strconv"
@@ -12,7 +12,7 @@ import (
   "github.com/prometheus/client_golang/prometheus/promauto"
   "github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	"github.com/penglongli/gin-metrics/ginmetrics"
 	controller "minitwit.com/devops/src/controller"
 	database "minitwit.com/devops/src/database"
