@@ -87,8 +87,7 @@ jobs:
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: |
-          sed -i "s/DB_HOST=db/DB_HOST=${DB_HOST_SECRET}/g" .env
-          sed -i "s/DB_PORT=5432/DB_PORT=${DB_PORT_SECRET}/g" .env
+          mv docker-compose.prod.yml docker-compose.yml
           echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
