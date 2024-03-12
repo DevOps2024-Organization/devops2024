@@ -307,16 +307,16 @@ func Latest(c *gin.Context) {
 }
 
 func main() {
-	var isTest bool
-	flag.BoolVar(&isTest,"test",false,"Set true if is test")
-	flag.Parse()
-	var envPath string = ".env"
-	if isTest  {
-		envPath = ".env-test"
-	}
-	if err := godotenv.Load(envPath); err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	// var isTest bool
+	// flag.BoolVar(&isTest,"test",false,"Set true if is test")
+	// flag.Parse()
+	// var envPath string = ".env"
+	// if isTest  {
+	// 	envPath = ".env-test"
+	// }
+	// if err := godotenv.Load(envPath); err != nil {
+	// 	log.Fatalf("Error loading .env file")
+	// }
 
 	SetupDB()
 
