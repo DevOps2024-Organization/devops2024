@@ -2,7 +2,8 @@ version: "3.8"
 services:
   app:
     image: 2rius/minitwitimage
-    build: .
+    build:
+      dockerfile: ./Dockerfile
     container_name: minitwit-app-instance
     ports:
       - "8080:8080"
@@ -24,7 +25,17 @@ services:
       - .env
 
   db:
-    image: 
+    image: 2rius/db
+    build:
+      dockerfile: database/Dockerfile
+    container_name: db
+    ports:
+      - "5432:5432"
+    networks:
+      - minitwit-network
+    env_file:
+      - .env
+
   prometheus:
     image: prom/prometheus
     container_name: minitwit-prometheus
