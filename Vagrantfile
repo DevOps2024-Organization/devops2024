@@ -143,13 +143,13 @@ Vagrant.configure("2") do |config|
         docker rmi hello-world
 
         # Change directory to the vagrant directory
-        cd /vagrant
+        # cd /vagrant
 
         # Build webserver docker container
-        docker compose -f docker-compose.yml up -d
+        # docker compose -f docker-compose.yml up -d
 
-        echo "Webserver is running at: http://$(hostname -I | awk '{print $1}'):8080"
-        echo "API is running at: http://$(hostname -I | awk '{print $1}'):5000"
+        echo "Webserver will run at: http://$(hostname -I | awk '{print $1}'):8080"
+        echo "API will run at: http://$(hostname -I | awk '{print $1}'):5000"
       SHELL
     end
 end
