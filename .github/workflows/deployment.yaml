@@ -36,7 +36,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: 2rius/minitwitimage:latest  # Adjust tag as needed
+          tags: ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest  # Adjust tag as needed
 
       - name: Build and push API image
         uses: docker/build-push-action@v2
@@ -44,7 +44,7 @@ jobs:
           context: .
           file: api/Dockerfile
           push: true
-          tags: 2rius/minitwitapi:latest  # Adjust tag as needed
+          tags: ${{ secrets.DOCKER_USERNAME }}/minitwitapi:latest  # Adjust tag as needed
 
       - name: Build and push test database
         uses: docker/build-push-action@v2
@@ -99,19 +99,12 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DB_HOST_SECRET: ${{ secrets.DB_HOST }}
           DB_PORT_SECRET: ${{ secrets.DB_PORT}}
-
-
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      #   with:
-      #     tag_name: v1.2.1
-      #     release_name: Release v1.2.1
-      #     body: |
-      #       Changes in this Release
-      #       - First Change
-      #       - Second Change
-      #     draft: false
-      #     prerelease: false
+          
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: v${{ github.event.head_commit.message }}
+          release_name: v${{ github.event.head_commit.message }}
