@@ -60,3 +60,19 @@ local_minitwit_build_and_run.sh
 
 // stops and removes containers and images so you can build clean:
 docker_cleanup.sh
+
+## Prometheus and Grafana implementation
+Make sure .env is set:
+DB_HOST=68.183.75.15
+DB_PORT=8080
+DB_DATABASE=minitwit
+DB_USER=root
+DB_PASS=password
+
+Start service:
+
+docker-compose build
+docker-compose up
+
+Stop service:
+docker-compose down
