@@ -83,6 +83,7 @@ jobs:
           SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
 
       - name: Bump version and push tag
+        id: bump_version
         uses: anothrNick/github-tag-action@1.26.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -113,7 +114,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          tag_name: ${{ steps.bump_version.outputs.new_tag }}  # Use the new tag here
+          release_name: Release ${{ steps.bump_version.outputs.new_tag }}
