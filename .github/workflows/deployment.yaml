@@ -38,6 +38,26 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version:  3.9.18
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run api
+        run: |
+          make postgrestestinit
+          sleep 10
+          make createdbtest
+          go run api/api.go -test true &
+          until curl -s http://localhost:5000/health > /dev/null; do
+            sleep 1
+          done
+          cd api
+          pytest api_test.py
+          
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
