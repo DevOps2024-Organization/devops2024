@@ -1,9 +1,8 @@
 name: Continuous Deployment
 on:
-  push:
+  pull_request:
     branches:
       - main
-
 
 jobs:
   build:
@@ -86,6 +85,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
 
       - name: Create Release
         id: create_release
