@@ -81,7 +81,15 @@ jobs:
           chmod 600 ~/.ssh/do_ssh_key
         env:
           SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
-          
+
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.26.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch
+          RELEASE_BRANCHES: main   
+
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run:
@@ -99,12 +107,13 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DB_HOST_SECRET: ${{ secrets.DB_HOST }}
           DB_PORT_SECRET: ${{ secrets.DB_PORT}}
-          
+
       - name: Create Release
-        id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.event.head_commit.message }}
-          release_name: v${{ github.event.head_commit.message }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
