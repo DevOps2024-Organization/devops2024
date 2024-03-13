@@ -64,7 +64,7 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Run api
+      - name: Test
         run: |
           docker compose up -d
 
@@ -100,16 +100,19 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DB_HOST_SECRET: ${{ secrets.DB_HOST }}
           DB_PORT_SECRET: ${{ secrets.DB_PORT}}
-
+          
   release:
     runs-on: ubuntu-latest
+    needs: Test
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: CupOfTea696/gh-action-auto-release@v1.0.0
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          title: "Release: $version"
-          tag: "v$semver"
-          draft: false
-          regex: '/^release: v(.*)$/i'
+          go-version: 1.19
+      - uses: go-semantic-release/action@v1
+        with:
+          hooks: goreleaser
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
