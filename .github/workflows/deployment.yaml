@@ -71,7 +71,7 @@ jobs:
             sleep 1
           done
           pytest api/api_test.py
-          pytest ../refactored_minitwit_tests.py
+          pytest refactored_minitwit_tests.py
   
           
       - name: Configure SSH
