@@ -81,7 +81,7 @@ jobs:
           echo "$SSH_KEY" > ~/.ssh/do_ssh_key
           chmod 600 ~/.ssh/do_ssh_key
         env:
-          SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
 
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
@@ -96,7 +96,7 @@ jobs:
           
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.STAGING_SSH_HOST }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DB_HOST_SECRET: ${{ secrets.DB_HOST }}
           DB_PORT_SECRET: ${{ secrets.DB_PORT}}
