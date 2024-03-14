@@ -73,7 +73,7 @@ jobs:
           pytest api/api_test.py
 
       - name: Test App
-        run:
+        run: |
           cd src
           go run main.go
           pytest ../refactored_minitwit_tests.py
