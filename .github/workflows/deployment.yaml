@@ -64,17 +64,14 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Test
+      - name: Test Api
         run: |
           docker compose up -d
-
-          
           until curl -s http://localhost:5000/health > /dev/null; do
             sleep 1
           done
-          cd api
-          pytest api_test.py
-          
+          pytest api/api_test.py
+          pytest refactored_minitwit_tests.py
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
