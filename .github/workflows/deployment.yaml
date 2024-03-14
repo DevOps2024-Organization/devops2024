@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - testApp
+      - main
 concurrency: production
 
 
@@ -64,7 +64,7 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: Test
+      - name: Test Api
         run: |
           docker compose up -d
           until curl -s http://localhost:5000/health > /dev/null; do
@@ -72,8 +72,6 @@ jobs:
           done
           pytest api/api_test.py
           pytest refactored_minitwit_tests.py
-  
-          
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
@@ -100,3 +98,22 @@ jobs:
           DB_HOST_SECRET: ${{ secrets.DB_HOST }}
           DB_PORT_SECRET: ${{ secrets.DB_PORT}}
           
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Calculate version number
+      run: ./.github/scripts/calculate_version.sh
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.NEW_VERSION }}
+        release_name: Release ${{ env.NEW_VERSION }}
+        draft: false
+        prerelease: false
