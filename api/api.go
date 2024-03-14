@@ -41,6 +41,17 @@ var (
     })
 )
 
+func normalizeEndpoint(path string) string {
+  // Normalize all endpoints that might be too specific
+  if strings.HasPrefix(path, "/fllws") {
+    return "/fllws"
+  } else if strings.HasPrefix(path, "/msgs") {
+    return "/msgs"
+  }
+
+  return path
+}
+
 func PrometheusMiddleware() gin.HandlerFunc {
     return func(c *gin.Context) {
         // Increment in-flight requests gauge
@@ -54,7 +65,7 @@ func PrometheusMiddleware() gin.HandlerFunc {
         inFlightRequests.Dec()
 
         status := strconv.Itoa(c.Writer.Status())
-        endpoint := c.Request.URL.Path // Or use c.FullPath() for matching route
+        endpoint := normalizeEndpoint(c.Request.URL.Path) // Or use c.FullPath() for matching route
         method := c.Request.Method
 
         httpRequestsTotal.WithLabelValues(method, endpoint, status).Inc()
