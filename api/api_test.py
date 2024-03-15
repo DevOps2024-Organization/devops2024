@@ -159,6 +159,8 @@ def test_follow_user():
     # verify that latest was updated
     response = requests.get(f'{BASE_URL}/latest', headers=HEADERS)
     assert response.json()['latest'] == 9
+    print(json_data["follows"])
+    print(response.json()['latest'] == 9)
 
 
 def test_a_unfollows_b():
