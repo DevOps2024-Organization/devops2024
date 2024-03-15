@@ -70,7 +70,7 @@ jobs:
           
       - name: Test Api
         run: |
-          docker pull && docker build && docker compose up -d
+          docker compose build && docker compose up -d
           until curl -s http://localhost:5000/health > /dev/null; do
             sleep 1
           done
