@@ -144,10 +144,12 @@ def test_follow_user():
     params = {'latest': 8}
     response = requests.post(url, data=json.dumps(data),
                              headers=HEADERS, params=params)
+    print(response.status_code)
     assert response.status_code == 204
 
     query = {'no': 20, 'latest': 9}
     response = requests.get(url, headers=HEADERS, params=query)
+    print(response.status_code)
     assert response.status_code == 204
 
     json_data = response.json()
