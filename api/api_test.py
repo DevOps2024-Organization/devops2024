@@ -148,7 +148,7 @@ def test_follow_user():
 
     query = {'no': 20, 'latest': 9}
     response = requests.get(url, headers=HEADERS, params=query)
-    assert response.ok
+    assert response.status_code == 204
 
     json_data = response.json()
     assert "b" in json_data["follows"]
