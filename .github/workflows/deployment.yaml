@@ -67,7 +67,15 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           pip install -r requirements.txt
-          
+
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=db" > .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
+
       - name: Test Api
         run: |
           docker compose build && docker compose up -d
