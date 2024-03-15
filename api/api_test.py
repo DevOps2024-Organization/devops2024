@@ -138,7 +138,7 @@ def test_follow_user():
     params = {'latest': 7}
     response = requests.post(url, data=json.dumps(data),
                              headers=HEADERS, params=params)
-    assert response.ok
+    assert response.status_code == 204
 
     data = {'follow': 'c'}
     params = {'latest': 8}
