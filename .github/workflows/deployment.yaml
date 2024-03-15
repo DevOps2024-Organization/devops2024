@@ -3,12 +3,12 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - fix/FollowUser
+      - main
 concurrency: production
 
 
 jobs:
-  Build_and_test:
+  BuildAndTest:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
