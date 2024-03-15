@@ -148,6 +148,7 @@ def test_follow_user():
 
     query = {'no': 20, 'latest': 9}
     response = requests.get(url, headers=HEADERS, params=query)
+
     assert response.status_code == 204
 
     json_data = response.json()
