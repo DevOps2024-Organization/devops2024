@@ -71,6 +71,7 @@ jobs:
       - name: Test App
         run: |
           pytest refactored_minitwit_tests.py
+
   Deploy:
     needs: BuildAndTest
     runs-on: ubuntu-latest
