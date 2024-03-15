@@ -144,12 +144,11 @@ def test_follow_user():
     params = {'latest': 8}
     response = requests.post(url, data=json.dumps(data),
                              headers=HEADERS, params=params)
-    print(response.status_code)
     assert response.ok
 
     query = {'no': 20, 'latest': 9}
     response = requests.get(url, headers=HEADERS, params=query)
-    print(response.status_code)
+
     assert response.ok
 
     json_data = response.json()
@@ -159,8 +158,7 @@ def test_follow_user():
     # verify that latest was updated
     response = requests.get(f'{BASE_URL}/latest', headers=HEADERS)
     assert response.json()['latest'] == 9
-    print(json_data["follows"])
-    print(response.json()['latest'] == 9)
+
 
 
 def test_a_unfollows_b():
