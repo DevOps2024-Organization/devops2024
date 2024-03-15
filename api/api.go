@@ -403,7 +403,7 @@ func main() {
 		} else {
 			followerList := GetFollowers(user.ID)
 			followerListResponse := FollowerListStruct{Follows: followerList}
-			c.JSON(http.StatusOK, followerListResponse)
+			c.JSON(http.StatusNoContent, followerListResponse)
 			return
 		}
 	}))

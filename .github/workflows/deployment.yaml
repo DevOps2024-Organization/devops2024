@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - fix/FollowUser
 concurrency: production
 
 
@@ -71,7 +71,11 @@ jobs:
             sleep 1
           done
           pytest api/api_test.py
+
+      - name: Test App
+        run: |
           pytest refactored_minitwit_tests.py
+
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
