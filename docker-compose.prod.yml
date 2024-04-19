@@ -2,24 +2,32 @@ version: "3.8"
 services:
    
   app:
-    image: 2rius/minitwitimage
-    build:
-      dockerfile: ./Dockerfile
-    container_name: minitwit-app-instance
+    image: 2rius/minitwitimage:latest
+      #build:
+      #  dockerfile: ./Dockerfile
+      #container_name: minitwit-app-instance
     ports:
       - "8080:8080"
+    deploy:
+      replicas: 3  # Number of instances
+      restart_policy:
+        condition: on-failure
     networks:
       - minitwit-network
     env_file:
       - .env
       
   api:
-    image: 2rius/minitwitapi
-    build:
-      dockerfile: api/Dockerfile
-    container_name: minitwit-api-instance
+    image: 2rius/minitwitapi:latest
+      #build:
+      #  dockerfile: api/Dockerfile
+      #container_name: minitwit-api-instance
     ports:
       - "5000:5000"
+    deploy:
+      replicas: 3  # Number of instances
+      restart_policy:
+        condition: on-failure    
     networks:
       - minitwit-network
     env_file:
@@ -34,6 +42,10 @@ services:
       - "9090:9090"
     networks:
       - minitwit-network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   grafana:
     image: grafana/grafana
@@ -44,7 +56,11 @@ services:
       - minitwit-network
     depends_on:
       - prometheus
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
 networks:
   minitwit-network:
-    driver: bridge
+    driver: overlay
