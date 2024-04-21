@@ -1,6 +1,20 @@
 version: "3.8"
 services:
-
+  db:
+    image: 2rius/db
+    build:
+      dockerfile: ./database/Dockerfile
+    container_name: database
+    ports:
+      - "5432:5432"
+    networks:
+      - minitwit-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 5s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
   app:
     image: 2rius/minitwitimage:latest
     build:
@@ -48,10 +62,6 @@ services:
       - minitwit-network
     depends_on:
       - prometheus
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
 
   elasticsearch:
     image: elasticsearch:7.9.3
@@ -85,4 +95,4 @@ volumes:
 
 networks:
   minitwit-network:
-    driver: overlay
+    driver: bridge
