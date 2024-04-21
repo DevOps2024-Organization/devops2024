@@ -9,9 +9,11 @@ import (
 	database "minitwit.com/devops/src/database"
 	flash "minitwit.com/devops/src/flash"
 	model "minitwit.com/devops/src/models"
+	"minitwit.com/devops/logger"
 )
 
 func Follow(c *gin.Context) {
+	logger.Log.Info("Following user")
 	user_to_follow := c.Request.URL.Query().Get("username")
 	user, _ := c.Cookie("token")
 	if user == "" {

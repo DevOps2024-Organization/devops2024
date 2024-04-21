@@ -1,23 +1,8 @@
 version: "3.8"
 services:
-  db:
-    image: 2rius/db
-    build:
-      dockerfile: ./database/Dockerfile
-    container_name: database
-    ports:
-      - "5432:5432"
-    networks:
-      - minitwit-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
-      interval: 5s
-      timeout: 60s
-      retries: 5
-      start_period: 80s  
-   
+
   app:
-    image: 2rius/minitwitimage
+    image: 2rius/minitwitimage:latest
     build:
       dockerfile: ./Dockerfile
     container_name: minitwit-app-instance
@@ -27,12 +12,9 @@ services:
       - minitwit-network
     env_file:
       - .env
-    depends_on:
-      db: 
-        condition: service_healthy
-      
+
   api:
-    image: 2rius/minitwitapi
+    image: 2rius/minitwitapi:latest
     build:
       dockerfile: api/Dockerfile
     container_name: minitwit-api-instance
@@ -42,9 +24,6 @@ services:
       - minitwit-network
     env_file:
       - .env
-    depends_on:
-      db:
-        condition: service_healthy
 
   prometheus:
     image: prom/prometheus
@@ -55,6 +34,10 @@ services:
       - "9090:9090"
     networks:
       - minitwit-network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   grafana:
     image: grafana/grafana
@@ -65,7 +48,41 @@ services:
       - minitwit-network
     depends_on:
       - prometheus
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  elasticsearch:
+    image: elasticsearch:7.9.3
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    image: kibana:7.9.3
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+
+  logstash:
+    image: logstash:7.9.3
+    ports:
+      - "12201:12201/udp"
+    depends_on:
+      - elasticsearch
+    volumes:
+      - logstash-pipeline:/usr/share/logstash/pipeline/
+
+volumes:
+  esdata:
+    driver: local
+  logstash-pipeline:
+    driver: local
 
 networks:
   minitwit-network:
-    driver: bridge
+    driver: overlay

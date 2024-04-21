@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	database "minitwit.com/devops/src/database"
 	model "minitwit.com/devops/src/models"
+	"minitwit.com/devops/logger"
 )
 
 func GetUser(username string) model.User {
@@ -41,6 +42,7 @@ func ValidUser(username string, password string) (bool, string) {
 }
 
 func Login(c *gin.Context) {
+	logger.Log.Info("Logging in")
 	username := strings.ToLower(c.Request.FormValue("username"))
 	password := c.Request.FormValue("password")
 
