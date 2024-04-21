@@ -5,6 +5,7 @@ import (
 	"html/template"
 	// "log"
 	"os"
+	"github.com/joho/godotenv"
 	"time"
   "strconv"
   "strings"
@@ -98,9 +99,10 @@ func GetUserID(username string) uint {
 }
 
 func main() {
-	// if err := godotenv.Load(".env"); err != nil {
-	// 	log.Fatalf("Error loading .env file")
-	// }
+	
+	if err := godotenv.Load(".env"); err != nil {
+		panic("Error loading .env file")
+	}
 
 	database.SetupDB()
 

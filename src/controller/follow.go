@@ -13,10 +13,11 @@ import (
 )
 
 func Follow(c *gin.Context) {
-	logger.Log.Info("Following user")
+	logger.Log.Info("Following user...")
 	user_to_follow := c.Request.URL.Query().Get("username")
 	user, _ := c.Cookie("token")
 	if user == "" {
+		logger.Log.Error("User not signed in to follow...")
 		panic("You must be logged in to follow users")
 	} else {
 		database.DB.Create(&model.Follow{Follower: GetUser(user).ID, Following: GetUser(user_to_follow).ID})
@@ -26,6 +27,7 @@ func Follow(c *gin.Context) {
 }
 
 func Unfollow(c *gin.Context) {
+	logger.Log.Info("Unfollowing user...")
 	var follows []model.Follow
 	user_to_follow := c.Request.URL.Query().Get("username")
 	user, _ := c.Cookie("token")

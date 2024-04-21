@@ -68,6 +68,8 @@ services:
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms2g -Xmx2g
+    ports:
+      - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
 
@@ -79,9 +81,12 @@ services:
       - "5601:5601"
 
   logstash:
+    build:
+        context: .
+        dockerfile: ./logstash/Dockerfile
     image: logstash:7.9.3
     ports:
-      - "12201:12201/udp"
+      - "5228:5228"
     depends_on:
       - elasticsearch
     volumes:

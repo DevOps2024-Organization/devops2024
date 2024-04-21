@@ -42,7 +42,7 @@ func ValidUser(username string, password string) (bool, string) {
 }
 
 func Login(c *gin.Context) {
-	logger.Log.Info("Logging in")
+	logger.Log.Info("Loggin in...")
 	username := strings.ToLower(c.Request.FormValue("username"))
 	password := c.Request.FormValue("password")
 

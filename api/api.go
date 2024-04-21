@@ -7,6 +7,7 @@ import (
 	"net/mail"
 	"os"
 	"strconv"
+	"github.com/joho/godotenv"
 	"strings"
 	"time"
 	// "flag"
@@ -325,9 +326,9 @@ func main() {
 	// if isTest  {
 	// 	envPath = ".env-test"
 	// }
-	// if err := godotenv.Load(envPath); err != nil {
-	// 	log.Fatalf("Error loading .env file")
-	// }
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 
 	SetupDB()
 
