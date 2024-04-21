@@ -23,7 +23,8 @@ db/
 
 # environment variables
 .env
-
+.idea
+.vscode
 
 # pycache
 __pycache__/
