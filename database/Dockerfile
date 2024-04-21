@@ -6,4 +6,4 @@ ENV POSTGRES_USER=root
 ENV POSTGRES_PASSWORD=password
 
 # Expose Postgres port
-EXPOSE 5432
+EXPOSE 5433
