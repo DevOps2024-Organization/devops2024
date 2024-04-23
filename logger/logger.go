@@ -1,20 +1,15 @@
 package logger
 
-import (
-	"github.com/sirupsen/logrus"
-	"github.com/bshuster-repo/logrus-logstash-hook"
-	"net"
-)
+import "go.uber.org/zap"
 
-var Log *logrus.Logger
+var Log *zap.Logger
 
 func init() {
-	Log = logrus.New()
-	conn, err := net.Dial("udp", "localhost:5228")
-	if err != nil {
-			Log.Fatal(err)
-	}
-	hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{"type": "myappName"}))
-
-	Log.Hooks.Add(hook)
+    // Initialize Zap logger
+    var err error
+    Log, err = zap.NewDevelopment()
+    if err != nil {
+        panic("failed to initialize logger: " + err.Error())
+    }
+    defer Log.Sync() // flushes buffer, if any
 }

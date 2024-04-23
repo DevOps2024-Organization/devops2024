@@ -26,6 +26,8 @@ services:
       - minitwit-network
     env_file:
       - .env
+    labels:
+      co.elastic.logs/enabled: true
 
   api:
     image: 2rius/minitwitapi:latest
@@ -38,6 +40,8 @@ services:
       - minitwit-network
     env_file:
       - .env
+    labels:
+      co.elastic.logs/enabled: true
 
   prometheus:
     image: prom/prometheus
@@ -79,24 +83,32 @@ services:
       - elasticsearch
     ports:
       - "5601:5601"
+  
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.9.3
+    user: root
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - logstash
+    command: filebeat -e -strict.perms=false
+    restart: unless-stopped
 
   logstash:
-    build:
-        context: .
-        dockerfile: ./logstash/Dockerfile
-    image: logstash:7.9.3
+    image: docker.elastic.co/logstash/logstash:7.9.3
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     ports:
-      - "5228:5228"
+      - 5044:5044
     depends_on:
       - elasticsearch
-    volumes:
-      - logstash-pipeline:/usr/share/logstash/pipeline/
+    restart: unless-stopped
 
 volumes:
   esdata:
-    driver: local
-  logstash-pipeline:
-    driver: local
+
 
 networks:
   minitwit-network:
