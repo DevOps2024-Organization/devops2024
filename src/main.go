@@ -3,19 +3,20 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"github.com/joho/godotenv"
 	// "log"
 	"os"
-	"github.com/joho/godotenv"
+	"strconv"
+	"strings"
 	"time"
-  "strconv"
-  "strings"
 
-  "github.com/prometheus/client_golang/prometheus"
-  "github.com/prometheus/client_golang/prometheus/promauto"
-  "github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	// "github.com/joho/godotenv"
 	"github.com/penglongli/gin-metrics/ginmetrics"
+	"minitwit.com/devops/logger"
 	controller "minitwit.com/devops/src/controller"
 	database "minitwit.com/devops/src/database"
 	model "minitwit.com/devops/src/models"
@@ -99,11 +100,12 @@ func GetUserID(username string) uint {
 }
 
 func main() {
+	logger.Log.Info("Starting endpoint...")
 	
 	if err := godotenv.Load(".env"); err != nil {
 		panic("Error loading .env file")
 	}
-
+	logger.Log.Info("Setting up db...")
 	database.SetupDB()
 
 	router := gin.Default()

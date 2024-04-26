@@ -2,25 +2,27 @@ package main
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"net/mail"
 	"os"
 	"strconv"
-	"github.com/joho/godotenv"
 	"strings"
 	"time"
 	// "flag"
 	// "encoding/json"
 
-  "github.com/prometheus/client_golang/prometheus"
-  "github.com/prometheus/client_golang/prometheus/promauto"
-  "github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	// "github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"go.uber.org/zap"
+	"minitwit.com/devops/logger"
 	model "minitwit.com/devops/src/models"
 )
 
@@ -90,6 +92,7 @@ var DB *gorm.DB
 var LATEST = 0
 
 func CreateUser(username string, email string, password string) bool {
+	logger.Log.Info("Creating: ",zap.String("Username",username), zap.String("Email",email))
 	salt := Salt()
 	err := DB.Create(&model.User{Username: username, Email: email, Salt: salt, Password: Hash(salt + password)}).Error
 	if err != nil {
@@ -132,18 +135,21 @@ func ValidEmail(email string) bool {
 
 func ValidRegistration(c *gin.Context, username string, email string, password1 string) bool {
 	if username == "" {
+		logger.Log.Info("Username is empty")
 		c.JSON(400, gin.H{
 			"error": "You have to enter a username",
 		})
 		return false
 	}
 	if password1 == "" {
+		logger.Log.Info("Password is empty")
 		c.JSON(400, gin.H{
 			"error": "You have to enter a password",
 		})
 		return false
 	}
 	if !ValidEmail(email) {
+		logger.Log.Info("Email is invalid")
 		c.JSON(400, gin.H{
 			"error": "You have to enter a valid email address",
 		})
@@ -256,7 +262,10 @@ func GetFollowers(user uint) []string {
 
 func GetFollower(follower uint, following uint) bool {
 	var follows []model.Follow
+	logger.Log.Info("Getting followers")
+	logger.Log.Debug("Getting followers from: ",zap.Uint("Follower",follower),zap.Uint("Following",following))
 	if follower == following {
+		logger.Log.Info("Follower and followee are the same")
 		return false
 	} else {
 		DB.Find(&follows).Where("follower = ?", following).Where("following = ?", follower).First(&follows)
@@ -319,6 +328,7 @@ func Latest(c *gin.Context) {
 }
 
 func main() {
+	logger.Log.Info("Starting api...")
 	// var isTest bool
 	// flag.BoolVar(&isTest,"test",false,"Set true if is test")
 	// flag.Parse()
@@ -329,7 +339,7 @@ func main() {
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatalf("Error loading .env file")
 	}
-
+	logger.Log.Info("Setting up db...")
 	SetupDB()
 
 	router := gin.Default()
