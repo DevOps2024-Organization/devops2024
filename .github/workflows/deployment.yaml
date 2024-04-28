@@ -12,8 +12,8 @@ jobs2:
     runs-on: ubuntu-latest
     steps:
       - name: Update README
-            run: |
-              sed "s/Current version: .*/Current version: ${{ env.NEW_VERSION }}/" README.md
+        run: |
+          sed "s/Current version: .*/Current version: ${{ env.NEW_VERSION }}/" README.md
               
 
 
