@@ -1,5 +1,17 @@
 # ITU DevOps course, Spring 2024
 
+Simple overview of use/purpose
+
+## Description
+
+An in-depth paragraph about your project and overview of use.
+
+## Executing
+
+## Authors
+
+## version History 
+
 ## Run On Local Machine
 Make sure you have a `.env` file in the root folder, and that it contains the following fields:
 ```
