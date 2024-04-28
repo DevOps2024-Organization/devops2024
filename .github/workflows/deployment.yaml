@@ -25,7 +25,6 @@ jobs:
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
 
       - name: Update README
-        uses: actions/checkout@v2
         run: |
           echo "## version History" >> README.md
           echo "- Version ${{ env.NEW_VERSION }}: Description of changes." >> README.md
