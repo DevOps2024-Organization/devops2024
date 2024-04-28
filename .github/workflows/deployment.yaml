@@ -7,22 +7,6 @@ on:
 concurrency: production
 
 
-jobs2:
-  TestingReadMeUpdate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Update README
-        uses: actions/checkout@v2
-        run: |
-          echo "## version History" >> README.md
-          echo "- Version ${{ env.NEW_VERSION }}: Description of changes." >> README.md
-      - name: Commit and push if changed
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add README.md
-          git commit -m "Update README with version history for ${{ env.NEW_VERSION }}" || echo "No changes to commit"
-          git push
 
 
 jobs:
@@ -39,6 +23,19 @@ jobs:
           echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
+
+      - name: Update README
+        uses: actions/checkout@v2
+        run: |
+          echo "## version History" >> README.md
+          echo "- Version ${{ env.NEW_VERSION }}: Description of changes." >> README.md
+      - name: Commit and push if changed
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add README.md
+          git commit -m "Update README with version history for ${{ env.NEW_VERSION }}" || echo "No changes to commit"
+          git push
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
