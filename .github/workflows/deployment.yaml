@@ -7,6 +7,16 @@ on:
 concurrency: production
 
 
+jobs2:
+  TestingReadMeUpdate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Update README
+          run: |
+            sed "s/Current version: .*/Current version: ${{ env.NEW_VERSION }}/" README.md
+            
+
+
 jobs:
   BuildAndTest:
     runs-on: ubuntu-latest
@@ -123,3 +133,5 @@ jobs:
           release_name: Release ${{ env.NEW_VERSION }}
           draft: false
           prerelease: false
+        
+          
