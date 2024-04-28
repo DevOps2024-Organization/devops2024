@@ -12,9 +12,17 @@ jobs2:
     runs-on: ubuntu-latest
     steps:
       - name: Update README
+        uses: actions/checkout@v2
         run: |
-          sed "s/Current version: .*/Current version: ${{ env.NEW_VERSION }}/" README.md
-              
+          echo "## version History" >> README.md
+          echo "- Version ${{ env.NEW_VERSION }}: Description of changes." >> README.md
+      - name: Commit and push if changed
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add README.md
+          git commit -m "Update README with version history for ${{ env.NEW_VERSION }}" || echo "No changes to commit"
+          git push
 
 
 jobs:
