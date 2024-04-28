@@ -14,17 +14,17 @@ concurrency: production
 jobs:
   BuildAndTest:
     runs-on: ubuntu-latest
-    # steps:
-    #   - name: Checkout
-    #     uses: actions/checkout@v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    #   - name: Create .env file
-    #     run: |
-    #       echo "DB_HOST=db" > .env
-    #       echo "DB_PORT=5432" >> .env
-    #       echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
-    #       echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-    #       echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=db" > .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
 
 
     #   - name: Log in to Docker Hub
