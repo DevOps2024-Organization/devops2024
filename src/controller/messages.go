@@ -15,7 +15,7 @@ import (
 
 func GetMessages(user string, page string, c *gin.Context) []map[string]interface{} {
 	var results []map[string]interface{}
-	logger.Log.Debug("Getting messages from: ",zap.String("User",user),zap.String("Page", page))
+	logger.Log.Debug("Getting messages from: ", zap.String("User", user), zap.String("Page", page))
 	user_query := c.Request.URL.Query().Get("username")
 
 	offset, messagesPerPage := LimitMessages(page)
@@ -52,7 +52,7 @@ func LimitMessages(page string) (int, int) {
 func AddMessage(c *gin.Context) {
 	user, err := c.Cookie("token")
 	if err != nil || user == "" {
-		logger.Log.Error("Failed to get token")
+		logger.Log.Error("Failed to get token to retrieve messages.")
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 
@@ -85,8 +85,9 @@ func AddMessage(c *gin.Context) {
 
 func GetFollower(follower uint, following uint) bool {
 	var follows []model.Follow
-	logger.Log.Info("Getting followers from: ", zap.Uint("follower",follower),zap.Uint("Following",following))
+	logger.Log.Info("Getting followers from: ", zap.Uint("follower", follower), zap.Uint("Following", following))
 	if follower == following {
+		logger.Log.Info("The follower is already following")
 		return false
 	} else {
 		database.DB.Find(&follows).Where("follower = ?", following).Where("following = ?", follower).First(&follows)

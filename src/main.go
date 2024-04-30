@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"github.com/joho/godotenv"
+	"html/template"
 	// "log"
 	"os"
 	"strconv"
@@ -23,21 +23,21 @@ import (
 )
 
 var (
-    httpRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
-        Name: "api_http_requests_total",
-        Help: "Total number of HTTP requests.",
-    }, []string{"method", "endpoint", "status_code"})
+	httpRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "api_http_requests_total",
+		Help: "Total number of HTTP requests.",
+	}, []string{"method", "endpoint", "status_code"})
 
-    requestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-        Name:    "api_request_duration_seconds",
-        Help:    "Duration of HTTP requests in seconds.",
-        Buckets: prometheus.DefBuckets,
-    }, []string{"method", "endpoint"})
+	requestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "api_request_duration_seconds",
+		Help:    "Duration of HTTP requests in seconds.",
+		Buckets: prometheus.DefBuckets,
+	}, []string{"method", "endpoint"})
 
-    inFlightRequests = promauto.NewGauge(prometheus.GaugeOpts{
-        Name: "api_in_flight_requests",
-        Help: "Current number of in-flight requests.",
-    })
+	inFlightRequests = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "api_in_flight_requests",
+		Help: "Current number of in-flight requests.",
+	})
 )
 
 func getGinMetrics(router *gin.Engine) {
@@ -54,37 +54,36 @@ func getGinMetrics(router *gin.Engine) {
 	m.Use(router)
 }
 
-
 func normalizeEndpoint(path string) string {
-  // Normalize all endpoints that might be too specific
-  if strings.HasPrefix(path, "/fllws") {
-    return "/fllws"
-  } else if strings.HasPrefix(path, "/msgs") {
-    return "/msgs"
-  }
+	// Normalize all endpoints that might be too specific
+	if strings.HasPrefix(path, "/fllws") {
+		return "/fllws"
+	} else if strings.HasPrefix(path, "/msgs") {
+		return "/msgs"
+	}
 
-  return path
+	return path
 }
 
 func PrometheusMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        // Increment in-flight requests gauge
-        inFlightRequests.Inc()
+	return func(c *gin.Context) {
+		// Increment in-flight requests gauge
+		inFlightRequests.Inc()
 
-        start := time.Now()
-        c.Next() // Process request
-        duration := time.Since(start)
+		start := time.Now()
+		c.Next() // Process request
+		duration := time.Since(start)
 
-        // Decrement in-flight requests gauge
-        inFlightRequests.Dec()
+		// Decrement in-flight requests gauge
+		inFlightRequests.Dec()
 
-        status := strconv.Itoa(c.Writer.Status())
-        endpoint := normalizeEndpoint(c.Request.URL.Path) // Or use c.FullPath() for matching route
-        method := c.Request.Method
+		status := strconv.Itoa(c.Writer.Status())
+		endpoint := normalizeEndpoint(c.Request.URL.Path) // Or use c.FullPath() for matching route
+		method := c.Request.Method
 
-        httpRequestsTotal.WithLabelValues(method, endpoint, status).Inc()
-        requestDuration.WithLabelValues(method, endpoint).Observe(duration.Seconds())
-    }
+		httpRequestsTotal.WithLabelValues(method, endpoint, status).Inc()
+		requestDuration.WithLabelValues(method, endpoint).Observe(duration.Seconds())
+	}
 }
 
 func formatAsDate(t time.Time) string {
@@ -101,8 +100,9 @@ func GetUserID(username string) uint {
 
 func main() {
 	logger.Log.Info("Starting endpoint...")
-	
+
 	if err := godotenv.Load(".env"); err != nil {
+		logger.Log.Error("Error loading .env file")
 		panic("Error loading .env file")
 	}
 	logger.Log.Info("Setting up db...")
@@ -110,10 +110,10 @@ func main() {
 
 	router := gin.Default()
 
-  router.Use(PrometheusMiddleware())
+	router.Use(PrometheusMiddleware())
 
-  // Expose the metrics endpoint
-  router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	// Expose the metrics endpoint
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	router.SetFuncMap(template.FuncMap{
 		"formatAsDate": formatAsDate,

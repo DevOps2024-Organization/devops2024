@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
-	"log"
 	"net/http"
 	"net/mail"
 	"os"
@@ -17,63 +16,63 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 	// "github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"go.uber.org/zap"
 	"minitwit.com/devops/logger"
 	model "minitwit.com/devops/src/models"
 )
 
 var (
-    httpRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
-        Name: "api_http_requests_total",
-        Help: "Total number of HTTP requests.",
-    }, []string{"method", "endpoint", "status_code"})
+	httpRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "api_http_requests_total",
+		Help: "Total number of HTTP requests.",
+	}, []string{"method", "endpoint", "status_code"})
 
-    requestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-        Name:    "api_request_duration_seconds",
-        Help:    "Duration of HTTP requests in seconds.",
-        Buckets: prometheus.DefBuckets,
-    }, []string{"method", "endpoint"})
+	requestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "api_request_duration_seconds",
+		Help:    "Duration of HTTP requests in seconds.",
+		Buckets: prometheus.DefBuckets,
+	}, []string{"method", "endpoint"})
 
-    inFlightRequests = promauto.NewGauge(prometheus.GaugeOpts{
-        Name: "api_in_flight_requests",
-        Help: "Current number of in-flight requests.",
-    })
+	inFlightRequests = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "api_in_flight_requests",
+		Help: "Current number of in-flight requests.",
+	})
 )
 
 func normalizeEndpoint(path string) string {
-  // Normalize all endpoints that might be too specific
-  if strings.HasPrefix(path, "/fllws") {
-    return "/fllws"
-  } else if strings.HasPrefix(path, "/msgs") {
-    return "/msgs"
-  }
+	// Normalize all endpoints that might be too specific
+	if strings.HasPrefix(path, "/fllws") {
+		return "/fllws"
+	} else if strings.HasPrefix(path, "/msgs") {
+		return "/msgs"
+	}
 
-  return path
+	return path
 }
 
 func PrometheusMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        // Increment in-flight requests gauge
-        inFlightRequests.Inc()
+	return func(c *gin.Context) {
+		// Increment in-flight requests gauge
+		inFlightRequests.Inc()
 
-        start := time.Now()
-        c.Next() // Process request
-        duration := time.Since(start)
+		start := time.Now()
+		c.Next() // Process request
+		duration := time.Since(start)
 
-        // Decrement in-flight requests gauge
-        inFlightRequests.Dec()
+		// Decrement in-flight requests gauge
+		inFlightRequests.Dec()
 
-        status := strconv.Itoa(c.Writer.Status())
-        endpoint := normalizeEndpoint(c.Request.URL.Path) // Or use c.FullPath() for matching route
-        method := c.Request.Method
+		status := strconv.Itoa(c.Writer.Status())
+		endpoint := normalizeEndpoint(c.Request.URL.Path) // Or use c.FullPath() for matching route
+		method := c.Request.Method
 
-        httpRequestsTotal.WithLabelValues(method, endpoint, status).Inc()
-        requestDuration.WithLabelValues(method, endpoint).Observe(duration.Seconds())
-    }
+		httpRequestsTotal.WithLabelValues(method, endpoint, status).Inc()
+		requestDuration.WithLabelValues(method, endpoint).Observe(duration.Seconds())
+	}
 }
 
 type APIMessage struct {
@@ -92,7 +91,7 @@ var DB *gorm.DB
 var LATEST = 0
 
 func CreateUser(username string, email string, password string) bool {
-	logger.Log.Info("Creating: ",zap.String("Username",username), zap.String("Email",email))
+	logger.Log.Info("Creating: ", zap.String("Username", username), zap.String("Email", email))
 	salt := Salt()
 	err := DB.Create(&model.User{Username: username, Email: email, Salt: salt, Password: Hash(salt + password)}).Error
 	if err != nil {
@@ -121,7 +120,7 @@ func SetupDB() {
 		os.Getenv("DB_PORT"))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		fmt.Printf("Error: %s", err.Error())
+		logger.Log.Error("Failed to connect to database")
 		panic("Failed to connect to ")
 	}
 	db.AutoMigrate(&model.User{}, &model.Message{}, &model.Follow{})
@@ -163,7 +162,7 @@ func ConvertToAPIMessage(messages []model.Message) []APIMessage {
 	var apiMessages []APIMessage
 
 	for _, msg := range messages {
-		apiMessage := APIMessage {
+		apiMessage := APIMessage{
 			User:      msg.Author,
 			CreatedAt: msg.CreatedAt.Format(time.RFC3339),
 			Flagged:   msg.Flagged,
@@ -232,7 +231,7 @@ func GetUser(username string) model.User {
 
 func GetMessages(user string, no int) []APIMessage {
 	var messages []model.Message
-
+	logger.Log.Info("Getting messages from", zap.String("User", user))
 	query := DB.Table("messages").Order("created_at desc").Limit(no)
 	if user != "" {
 		query = query.Where("author = ?", user)
@@ -245,6 +244,7 @@ func GetMessages(user string, no int) []APIMessage {
 
 func GetFollowers(user uint) []string {
 	var usernames []string
+	logger.Log.Info("Getting followers from", zap.Uint("User", user))
 	err := DB.Model(&model.User{}).
 		Select("users.username").
 		Joins("JOIN follows ON follows.following = users.id").
@@ -252,10 +252,9 @@ func GetFollowers(user uint) []string {
 		Pluck("users.username", &usernames).Error
 
 	if err != nil {
-		log.Printf("Error finding followers: %v", err)
+		logger.Log.Error("Error finding followers: %v", zap.String("Error message: ", err.Error()))
 		return nil
 	}
-
 
 	return usernames
 }
@@ -263,7 +262,7 @@ func GetFollowers(user uint) []string {
 func GetFollower(follower uint, following uint) bool {
 	var follows []model.Follow
 	logger.Log.Info("Getting followers")
-	logger.Log.Debug("Getting followers from: ",zap.Uint("Follower",follower),zap.Uint("Following",following))
+	logger.Log.Debug("Getting followers from: ", zap.Uint("Follower", follower), zap.Uint("Following", following))
 	if follower == following {
 		logger.Log.Info("Follower and followee are the same")
 		return false
@@ -289,18 +288,6 @@ func sanitize(s string) string {
 }
 
 func AddMessage(user string, message string) {
-	//fix cross site forgery here
-	//{
-	// r := gin.Default()
-	// store := cookie.NewStore([]byte("secret"))
-	// r.Use(sessions.Sessions("mysession", store))
-	// r.Use(csrf.Middleware(csrf.Options{
-	// 	Secret: "secret123",
-	// 	ErrorFunc: func(c *gin.Context) {
-	// 		c.String(400, "CSRF token mismatch")
-	// 		c.Abort()
-	// 	},
-	// }))
 	message = sanitize(message)
 	t := time.Now().Format(time.RFC822)
 	time_now, _ := time.Parse(time.RFC822, t)
@@ -329,25 +316,18 @@ func Latest(c *gin.Context) {
 
 func main() {
 	logger.Log.Info("Starting api...")
-	// var isTest bool
-	// flag.BoolVar(&isTest,"test",false,"Set true if is test")
-	// flag.Parse()
-	// var envPath string = ".env"
-	// if isTest  {
-	// 	envPath = ".env-test"
-	// }
 	if err := godotenv.Load(".env"); err != nil {
-		log.Fatalf("Error loading .env file")
+		logger.Log.Error("Error loading .env file")
 	}
 	logger.Log.Info("Setting up db...")
 	SetupDB()
 
 	router := gin.Default()
-  // Register Prometheus middleware
-  router.Use(PrometheusMiddleware())
+	// Register Prometheus middleware
+	router.Use(PrometheusMiddleware())
 
-  // Expose the metrics endpoint
-  router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	// Expose the metrics endpoint
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	//API ENDPOINTS ADDED
 	router.GET("/", (func(c *gin.Context) {
@@ -388,6 +368,7 @@ func main() {
 		user := strings.Trim(c.Param("usr"), "/")
 
 		if GetUser(user).ID == 0 {
+			logger.Log.Error("User not found")
 			c.JSON(404, gin.H{"error": "user not found"})
 			return
 		}
@@ -395,6 +376,7 @@ func main() {
 		var message model.MessageForm
 
 		if err := c.ShouldBindJSON(&message); err != nil {
+			logger.Log.Error("Message not provided")
 			c.JSON(http.StatusForbidden, gin.H{"error_msg": "You must provide a message"})
 			return
 		}
@@ -409,6 +391,7 @@ func main() {
 		Latest(c)
 		user := GetUser(strings.Trim(c.Param("usr"), "/"))
 		if user.ID == 0 {
+			logger.Log.Error("User not found")
 			c.JSON(404, gin.H{"error": "user not found"})
 			return
 		} else {
@@ -423,6 +406,7 @@ func main() {
 		Latest(c)
 		user := GetUser(strings.Trim(c.Param("usr"), "/"))
 		if user.ID == 0 {
+			logger.Log.Error("User not found")
 			c.JSON(404, gin.H{"error": "user not found"})
 			return
 		}
