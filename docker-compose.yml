@@ -28,6 +28,8 @@ services:
       - .env
     labels:
       co.elastic.logs/enabled: true
+    depends_on:
+      - db
 
   api:
     image: 2rius/minitwitapi:latest
@@ -42,6 +44,8 @@ services:
       - .env
     labels:
       co.elastic.logs/enabled: true
+    depends_on:
+      - db
 
   prometheus:
     image: prom/prometheus
@@ -72,17 +76,18 @@ services:
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms2g -Xmx2g
-    ports:
-      - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    networks:
+      - elk
 
   kibana:
     image: kibana:7.9.3
     depends_on:
       - elasticsearch
-    ports:
-      - "5601:5601"
+    networks:
+      - elk
+
   
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.9.3
@@ -95,16 +100,36 @@ services:
       - logstash
     command: filebeat -e -strict.perms=false
     restart: unless-stopped
+    networks:
+      - elk
 
   logstash:
     image: docker.elastic.co/logstash/logstash:7.9.3
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-    ports:
-      - 5044:5044
     depends_on:
       - elasticsearch
     restart: unless-stopped
+    networks:
+      - elk
+
+  nginx:
+    image: nginx
+    ports:
+      - 9200:9200
+      - 5601:5601
+      - 5044:5044
+      - 8881:8881
+      - 8882:8882
+    networks:
+      - elk
+    volumes:
+      - type: bind
+        source: nginx.conf
+        target: /etc/nginx/nginx.conf
+      - type: bind
+        source: .htpasswd
+        target: /etc/nginx/.htpasswd
 
 volumes:
   esdata:
@@ -113,3 +138,4 @@ volumes:
 networks:
   minitwit-network:
     driver: bridge
+  elk:
