@@ -3,25 +3,21 @@ on:
   push:
     branches:
       - paper
-    paths:
-      - 'report/*.tex'
 
 jobs:
   build_pdf:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
+      - name: Set up Git repository
+        uses: actions/checkout@v4
       - name: Compile LaTeX document
-        uses: xu-cheng/latex-action@v2
+        uses: xu-cheng/latex-action@3.2.0
         with:
           root_file: main.tex
           working_directory: report
-          args: -output-directory=build
-
-      - name: Upload PDF
+          args: -output-directory=build -pdf
+      - name: Upload PDF file
         uses: actions/upload-artifact@v2
         with:
-          name: compiled-pdf
-          path: report/build/*.pdf
+          name: PDF
+          path: build/main.pdf
