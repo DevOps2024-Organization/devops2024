@@ -16,8 +16,11 @@ jobs:
           root_file: main.tex
           working_directory: report
           args: -output-directory=build -pdf
-      - name: Upload PDF file
-        uses: actions/upload-artifact@v2
-        with:
-          name: PDF
-          path: report/build/main.pdf
+      - name: Commit and Push PDF file
+        run: |
+          mv report/build/main.pdf report/build/BSc_group_m.pdf
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add report/build/BSc_group_m.pdf
+          git commit -m "Automatically update pdf file" || echo "No changes to commit"
+          git push
