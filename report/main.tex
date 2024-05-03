@@ -1,0 +1,157 @@
+\documentclass[12pt, a4paper]{book}
+\usepackage{fix-cm}
+\usepackage[table]{xcolor}
+\usepackage{titlesec}
+\definecolor{gray75}{gray}{0.75}
+\newcommand{\hsp}{\hspace{0pt}}
+\titleformat{\chapter}[hang]{\flushright
+\fontseries{b}\fontsize{80}{100}\selectfont}{\fontseries{b}\fontsize{100}{130}\selectfont \textcolor{gray75}\thechapter\hsp}{0pt}{\\ \Huge\bfseries}[]
+
+\usepackage{tabularx}
+\usepackage{biblatex}
+\input{preamble}
+
+\title{DevOps, Software Evolution and Software Maintenance, BSc (Spring 2024)}
+\author{Course code: BSDSESM1KU}
+
+\begin{document}
+
+\begin{minipage}{\textwidth}
+\maketitle
+
+\begin{center}
+    Exam Assignment by: \\
+    \hfill \break
+    \bgroup
+    \def\arraystretch{1.5}%
+    \begin{tabularx}{0.8\textwidth} { 
+      | >{\centering\arraybackslash}X 
+      | >{\centering\arraybackslash}X | }
+     \hline
+     \cellcolor[HTML]{EFEFEF} Student & \cellcolor[HTML]{EFEFEF} Email \\
+     \hline
+     Daria Damian & dard@itu.dk \\
+     \hline
+     Hallgrímur Jónas Jensson & hajj@itu.dk \\
+    \hline
+     Mathias E. L. Rasmussen & memr@itu.dk \\
+    \hline
+     Max-Emil Smith Thorius & maxt@itu.dk \\
+    \hline
+    \end{tabularx}
+    \egroup
+\end{center}
+\end{minipage}
+\tableofcontents
+\chapter{System's Perspective}
+
+\section{Design and architecture of the Minitwit system}
+
+\section{Dependencies of the Minitwit system}
+
+\section{Important interactions of subsystems}
+
+\section{Current state of the system}
+
+% A description and illustration of the:
+% - Design and architecture of your ITU-MiniTwit systems
+% - All dependencies of your ITU-MiniTwit systems on all levels of abstraction and development stages. That is, list and briefly describe all technologies and tools you applied and depend on.
+% - Important interactions of subsystems
+%    - For example, via an illustrative UML Sequence diagram that shows the flow of information through your system from user request in the browser, over all subsystems, hitting the database, and a response that is returned to the user.
+%    1- Similarly, another illustrative sequence diagram that shows how requests from the simulator traverse your system.
+% - Describe the current state of your systems, for example using results of static analysis and quality assessments.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis enim a nulla molestie, ac feugiat justo egestas. Nullam interdum lorem et neque ullamcorper volutpat sed sit amet tortor. Praesent sit amet aliquet risus, et accumsan mi. Sed facilisis condimentum varius. Praesent et nunc cursus, laoreet nisi a, venenatis nisl. Integer diam magna, iaculis at dapibus et, rutrum in leo. Pellentesque feugiat diam felis, quis ornare eros dignissim et. Maecenas sed laoreet nunc. Morbi porttitor massa id dui aliquam, non ultrices dolor malesuada.
+
+Cras et porta ex. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam erat volutpat. Phasellus eget ipsum sit amet nulla porttitor rhoncus at eget elit. Aenean vulputate, urna sed lacinia luctus, sem nisi iaculis nunc, vitae mattis neque sem in felis. Sed tempor tincidunt dapibus. Morbi porta ex erat, sed ornare mi gravida nec. Phasellus ut nunc venenatis, mollis est vestibulum, laoreet nibh. Mauris in vulputate diam. Nunc ullamcorper vestibulum velit, eget volutpat leo vulputate at. Nam in tortor id dolor elementum lobortis at ut elit. Nulla in interdum mi. Sed aliquam ullamcorper blandit.
+
+\chapter{Process' perspective}
+% This perspective should clarify how code or other artifacts come from idea into the running system and everything that happens on the way.
+% In particular, the following descriptions should be included:
+% - A complete description of stages and tools included in the CI/CD chains, including deployment and release of your systems.
+% - How do you monitor your systems and what precisely do you monitor?
+% - What do you log in your systems and how do you aggregate logs?
+% - Brief results of the security assessment and brief description of how did you harden the security of your system based on the analysis
+% - Applied strategy for scaling and upgrades
+% In case you have used AI-assistants during your project briefly explain which system(s) you used during the project and reflect how it supported/hindered your process.
+
+\section{CI/CD Chain}
+
+\subsection{About GitHub Actions Workflow}
+We implemented a GitHub Actions workflow to automate the process of testing, building and deploying the most recent version of Minitwit. It is set to execute on each push to the 'Main' branch of our GitHub repository. The workflow is separated into three main jobs: 'BuildAndTest', 'Deploy', and 'Release' which are executed sequentially, each dependent on the last executing successfully.
+
+
+\subsection{BuildAndTest Job}
+
+\textbf{Triggered by:} Direct workflow dispatch or pull request to the main branch.
+
+\textbf{Environment:} Utilizes an \texttt{ubuntu-latest} runner.
+
+\subsubsection{Primary Actions}
+\begin{itemize}
+    \item \textbf{Code Checkout:} Fetches the latest code from the repository.
+    \item \textbf{Environment Setup:} Dynamically creates a \texttt{.env} file using both static values and encrypted secrets to configure database connectivity.
+    \item \textbf{Containerization:} Logs into Docker Hub, builds, and pushes three separate Docker images: the application, API, and a test database, tagged to the developer's Docker Hub account.
+    \item \textbf{Python Environment Setup:} Configures Python 3.9.19 and installs dependencies.
+    \item \textbf{Testing:} Executes integration tests by first deploying services using Docker Compose and then running tests through \texttt{pytest}.
+\end{itemize}
+
+\subsection{Deploy Job}
+
+\textbf{Dependencies:} Waits for the BuildAndTest job to complete.
+
+\textbf{Environment:} Runs on an \texttt{ubuntu-latest} machine.
+
+\subsubsection{Primary Actions}
+\begin{itemize}
+    \item \textbf{SSH Configuration:} Sets up SSH keys for secure connection to the deployment server.
+    \item \textbf{Deployment Execution:} Transfers Docker Compose configurations and other relevant files to the server via \texttt{scp}, then uses SSH to execute deployment commands remotely, leveraging Docker Stack to deploy the application.
+\end{itemize}
+
+\subsection{Release Job}
+
+\textbf{Dependencies:} Executes after successful deployment.
+
+\textbf{Environment:} Also uses an \texttt{ubuntu-latest} runner.
+
+\subsubsection{Primary Actions}
+\begin{itemize}
+    \item \textbf{Version Calculation:} Executes a script to determine the new version number based on predefined logic.
+    \item \textbf{Release Creation:} Utilizes GitHub's \texttt{create-release} action to tag the repository with the new version and create a formal release on GitHub.
+\end{itemize}
+
+
+\subsection{Conclusion}
+
+
+\section{Monitoring}
+
+\section{Logging}
+
+\section{Security assessment}
+
+\section{Scaling strategy}
+
+\chapter{Lessons Learned Perspective}
+
+\section{Evolution and refactoring}
+
+\section{Operation}
+
+\section{Maintenance}
+
+% Describe the biggest issues, how you solved them, and which are major lessons learned with regards to:
+% - evolution and refactoring
+% - operation, and
+% - maintenance
+% of your ITU-MiniTwit systems. Link back to respective commit messages, issues, tickets, etc. to illustrate these.
+% Also reflect and describe what was the "DevOps" style of your work. For example, what did you do differently to previous development projects and how did it work?
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis enim a nulla molestie, ac feugiat justo egestas. Nullam interdum lorem et neque ullamcorper volutpat sed sit amet tortor. Praesent sit amet aliquet risus, et accumsan mi. Sed facilisis condimentum varius. Praesent et nunc cursus, laoreet nisi a, venenatis nisl. Integer diam magna, iaculis at dapibus et, rutrum in leo. Pellentesque feugiat diam felis, quis ornare eros dignissim et. Maecenas sed laoreet nunc. Morbi porttitor massa id dui aliquam, non ultrices dolor malesuada.
+
+Cras et porta ex. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam erat volutpat. Phasellus eget ipsum sit amet nulla porttitor rhoncus at eget elit. Aenean vulputate, urna sed lacinia luctus, sem nisi iaculis nunc, vitae mattis neque sem in felis. Sed tempor tincidunt dapibus. Morbi porta ex erat, sed ornare mi gravida nec. Phasellus ut nunc venenatis, mollis est vestibulum, laoreet nibh. Mauris in vulputate diam. Nunc ullamcorper vestibulum velit, eget volutpat leo vulputate at. Nam in tortor id dolor elementum lobortis at ut elit. Nulla in interdum mi. Sed aliquam ullamcorper blandit.
+
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+\end{document}

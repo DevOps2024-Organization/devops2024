@@ -1,0 +1,27 @@
+name: Compile Latex
+on:
+  push:
+    branches:
+      - paper
+    paths:
+      - 'report/*.tex'
+
+jobs:
+  build_pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@v2
+        with:
+          root_file: report/main.tex
+          working_directory: report
+          args: -output-directory=build
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@v2
+        with:
+          name: compiled-pdf
+          path: report/build/*.pdf
