@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - paper
+    paths:
+      - 'report/*.tex'
 
 jobs:
   build_pdf:
