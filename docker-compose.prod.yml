@@ -27,7 +27,7 @@ services:
     deploy:
       replicas: 3  # Number of instances
       restart_policy:
-        condition: on-failure    
+        condition: on-failure
     networks:
       - minitwit-network
     env_file:
@@ -61,6 +61,9 @@ services:
         constraints:
           - node.role == manager
 
+
+
 networks:
   minitwit-network:
     driver: overlay
+

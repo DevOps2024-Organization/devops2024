@@ -118,9 +118,14 @@ func SetupDB() {
 		os.Getenv("DB_PASS"),
 		os.Getenv("DB_DATABASE"),
 		os.Getenv("DB_PORT"))
+	logger.Log.Debug("Env variables are:",
+		zap.String("DB_HOST", os.Getenv("DB_HOST")),
+		zap.String("DB_USER", os.Getenv("DB_USER")),
+		zap.String("DB_DATABASE", os.Getenv("DB_DATABASE")),
+		zap.String("DB_PORT", os.Getenv("DB_PORT")))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		logger.Log.Error("Failed to connect to database")
+		logger.Log.Error("Failed to connect to database", zap.String("Error:", err.Error()))
 		panic("Failed to connect to ")
 	}
 	db.AutoMigrate(&model.User{}, &model.Message{}, &model.Follow{})

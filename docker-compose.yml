@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   db:
-    image: 2rius/db
+    image: fujiemei02/db
     build:
       dockerfile: ./database/Dockerfile
     container_name: database
@@ -15,37 +15,43 @@ services:
       timeout: 60s
       retries: 5
       start_period: 80s
+
   app:
-    image: 2rius/minitwitimage:latest
+    image: fujiemei02/minitwitimage
     build:
       dockerfile: ./Dockerfile
-    container_name: minitwit-app-instance
+    container_name: minitwitapp
     ports:
       - "8080:8080"
+    deploy:
+      replicas: 3  # Number of instances
+      restart_policy:
+        condition: on-failure
     networks:
       - minitwit-network
     env_file:
       - .env
     labels:
-      co.elastic.logs/enabled: true
-    depends_on:
-      - db
+      co.elastic.logs/enabled: "true"
 
   api:
-    image: 2rius/minitwitapi:latest
+    image: fujiemei02/minitwitapi
     build:
       dockerfile: api/Dockerfile
-    container_name: minitwit-api-instance
+    container_name: minitwitapi
     ports:
       - "5000:5000"
+    deploy:
+      replicas: 3  # Number of instances
+      restart_policy:
+        condition: on-failure
     networks:
       - minitwit-network
     env_file:
       - .env
+    #THIS IS NEEDED FOR FILEBEAT TO DISCOVER LOGS!!!!!!!!!
     labels:
-      co.elastic.logs/enabled: true
-    depends_on:
-      - db
+      co.elastic.logs/enabled: "true"
 
   prometheus:
     image: prom/prometheus
@@ -70,6 +76,10 @@ services:
       - minitwit-network
     depends_on:
       - prometheus
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   elasticsearch:
     image: elasticsearch:7.9.3
@@ -80,6 +90,9 @@ services:
       - esdata:/usr/share/elasticsearch/data
     networks:
       - elk
+    depends_on:
+      - nginx
+
 
   kibana:
     image: kibana:7.9.3
@@ -88,7 +101,6 @@ services:
     networks:
       - elk
 
-  
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.9.3
     user: root
@@ -102,6 +114,7 @@ services:
     restart: unless-stopped
     networks:
       - elk
+
 
   logstash:
     image: docker.elastic.co/logstash/logstash:7.9.3
@@ -131,11 +144,14 @@ services:
         source: .htpasswd
         target: /etc/nginx/.htpasswd
 
+
 volumes:
   esdata:
 
 
 networks:
   minitwit-network:
-    driver: bridge
+    driver: overlay
   elk:
+
+
