@@ -130,7 +130,6 @@ services:
         source: .htpasswd
         target: /etc/nginx/.htpasswd
 
-
 volumes:
   esdata:
 
