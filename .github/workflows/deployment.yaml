@@ -110,7 +110,6 @@ jobs:
     needs: Deploy
     steps:
       - uses: actions/checkout@v2
-
       - name: Calculate version number
         run: ./.github/scripts/calculate_version.sh
 
