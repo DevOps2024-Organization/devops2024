@@ -1,11 +1,15 @@
 \documentclass[12pt, a4paper, oneside]{book}
-
+\include{}
 \input{preamble}
 
 \title{DevOps, Software Evolution and Software Maintenance, BSc (Spring 2024)}
 \author{Course code: BSDSESM1KU}
 
+
+\begin{spacing}{1.5}
+
 \begin{document}
+
 
 \begin{minipage}{\textwidth}
 \maketitle
@@ -40,7 +44,46 @@
 
 \section{Design and architecture of the Minitwit system}
 
+
+ITU-MiniTwit is designed as a microservices architecture, leveraging containerization to ensure isolation, ease of deployment, and scalability. The system's architecture facilitates independent development and deployment of services, which enhances maintenance and testing capabilities.
+
+Detailed Architecture:
+
+\begin{itemize}
+
+\item API Service:
+
+    \subitem Function: Handles all client-server interactions, processing client requests, and sending responses back to clients.
+    \subitem Implementation: Likely implemented using Go, indicated by go.mod files, which is suitable for creating performant and scalable backend services.
+    \subitem Files: Located within the api directory, which contains all the routing and logic for handling HTTP requests.
+\item Database Service:
+    \subitem Function: Manages data storage and retrieval, serving as the persistent storage layer for the application.
+    \subitem Implementation: Utilizes SQL, as suggested by the presence of schema.sql and query.sql, indicating the use of relational database management systems.
+    \subitem Files: The database directory contains scripts and configurations for database setup and management.
+\item Front-end:
+    \subitem Function: Provides the user interface through which users interact with the ITU-MiniTwit application.
+    \subitem Implementation: While specific front-end files weren't listed, typically, this would involve HTML, CSS, and JavaScript files possibly served by the Python service or another static file server.
+    \subitem Files: Likely included in the root directory or within a static or templates directory that contains HTML templates and JavaScript files.
+\item Containerization and Orchestration:
+
+    \subitem Utilizes Docker, as evidenced by Dockerfile and docker-compose.yml, to containerize the application components, ensuring that each component runs in an isolated environment with its dependencies.
+    \subitem Docker Compose helps in defining and running multi-container Docker applications, where services such as the API and database are orchestrated to work together.
+\end{itemize}
+
+
 \section{Dependencies of the Minitwit system}
+
+On the Development Environment:
+
+Vagrant: Used for provisioning virtual environments, ensuring that all developers work within a consistent development environment irrespective of their local machine configurations.
+Makefile: Simplifies project builds, allowing developers to automate complex sequences of tasks with simple commands.
+Programming Languages and Frameworks:
+
+Python: Used for scripting and possibly serving web content. The requirements.txt file lists all Python library dependencies.
+Go: Utilizes modern language features of Go for efficient back-end services.
+External APIs and Services:
+
+Prometheus: Employed for monitoring the application’s performance metrics, helping in proactive management and optimization of the application performance.
 
 \section{Important interactions of subsystems}
 
@@ -69,11 +112,74 @@ Cras et porta ex. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliqu
 % In case you have used AI-assistants during your project briefly explain which system(s) you used during the project and reflect how it supported/hindered your process.
 
 \section{CI/CD Chain}
-
-\subsection{About GitHub Actions Workflow}
 We implemented a GitHub Actions workflow to automate the process of testing, building and deploying the most recent version of Minitwit. It is set to execute on each push to the 'Main' branch of our GitHub repository. The workflow is separated into three main jobs: 'BuildAndTest', 'Deploy', and 'Release' which are executed sequentially, each dependent on the last executing successfully.
 
+\subsection{Triggers}
+The workflow is triggered on two specific GitHub events: manual triggers via workflow\_dispatch and on pull requests to the main branch. 
 
+\subsection{Jobs}
+\subsubsection{BuildAndTest}
+In this step all relevant images are built and pushed to the Docker hub, built and run and tested to ensure that the system will run as expected. The key steps are as follows:
+
+\begin{enumerate}
+    \item \textbf{Checkout:} 
+    \begin{itemize}
+        \item Utilizes \texttt{actions/checkout@v2} to fetch the codebase from the repository.
+    \end{itemize}
+    
+    \item \textbf{Environment Setup:} 
+    \begin{itemize}
+        \item Dynamically creates a \texttt{.env} file with database configurations sourced from GitHub secrets.
+    \end{itemize}
+    
+    \item \textbf{Docker Operations:}
+    \begin{itemize}
+        \item Logs into Docker Hub using credentials from GitHub secrets to push built images.
+        \item Builds and pushes multiple Docker images, including:
+        \begin{itemize}
+            \item The application image
+            \item API image
+            \item A test database image
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{Python Setup and Dependency Installation:}
+    \begin{itemize}
+        \item Configures the Python environment.
+        \item Installs necessary dependencies to ensure consistent testing conditions.
+    \end{itemize}
+    
+    \item \textbf{Testing:}
+    \begin{itemize}
+        \item Executes integration tests by setting up the application and its dependencies in Docker containers.
+        \item Conducts API tests and application-specific tests to ensure functionality and reliability.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Deploy}
+The \textbf{Deploy} job is activated on successfully completing the \textbf{BuildAndTest} job. This job manages the deployment of the application to the remote server where the application is hosted. The steps are:
+
+\begin{enumerate}
+    \item \textbf{Checkout:} 
+    \begin{itemize}
+        \item Retrieves the latest codebase from the repository, utilizing \texttt{actions/checkout@v2} similar to the first job.
+    \end{itemize}
+    
+    \item \textbf{SSH Configuration:} 
+    \begin{itemize}
+        \item Prepares SSH keys to establish a secure connection to the deployment server.
+    \end{itemize}
+    
+    \item \textbf{Deployment Execution:}
+    \begin{itemize}
+        \item Updates environmental configurations and transfers necessary files to the server using SSH.
+        \item Employs Docker Compose on the server to pull the latest Docker images.
+        \item Deploys the images using Docker Stack, which effectively updates the running application on the server.
+    \end{itemize}
+\end{enumerate}
+
+ \subsubsection{Release}
+ After the previous jobs have been successfully completed, the 
 
 \subsection{Conclusion}
 
