@@ -6,10 +6,10 @@
 \author{Course code: BSDSESM1KU}
 
 
-\begin{spacing}{1.5}
+
 
 \begin{document}
-
+\begin{spacing}{1.5}
 
 \begin{minipage}{\textwidth}
 \maketitle
@@ -46,15 +46,19 @@
 
 
 ITU-MiniTwit is designed as a microservices architecture, leveraging containerization to ensure isolation, ease of deployment, and scalability. The system's architecture facilitates independent development and deployment of services, which enhances maintenance and testing capabilities.
-
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/ITU-minitwit-architecture.png}
+    \caption{High-level ITU-MiniTwit architexture}
+\end{figure}
 Detailed Architecture:
 
 \begin{itemize}
 
 \item API Service:
 
-    \subitem Function: Handles all client-server interactions, processing client requests, and sending responses back to clients.
-    \subitem Implementation: Likely implemented using Go, indicated by go.mod files, which is suitable for creating performant and scalable backend services.
+    \subitem Function: Handles all client-server interactions, processing client requests and sending responses back to clients.
+    \subitem Implementation: Implemented using Go, indicated by go.mod files, which is suitable for creating performant and scalable backend services.
     \subitem Files: Located within the api directory, which contains all the routing and logic for handling HTTP requests.
 \item Database Service:
     \subitem Function: Manages data storage and retrieval, serving as the persistent storage layer for the application.
@@ -119,12 +123,12 @@ The workflow is triggered on two specific GitHub events: manual triggers via wor
 
 \subsection{Jobs}
 \subsubsection{BuildAndTest}
-In this step all relevant images are built and pushed to the Docker hub, built and run and tested to ensure that the system will run as expected. The key steps are as follows:
+In this step all relevant images are built and pushed to the Docker hub and then run and tested to ensure that the system will work as expected. The key steps are as follows:
 
 \begin{enumerate}
     \item \textbf{Checkout:} 
     \begin{itemize}
-        \item Utilizes \texttt{actions/checkout@v2} to fetch the codebase from the repository.
+        \item Uses \texttt{actions/checkout@v2} to fetch the codebase from the repository.
     \end{itemize}
     
     \item \textbf{Environment Setup:} 
@@ -162,7 +166,7 @@ The \textbf{Deploy} job is activated on successfully completing the \textbf{Buil
 \begin{enumerate}
     \item \textbf{Checkout:} 
     \begin{itemize}
-        \item Retrieves the latest codebase from the repository, utilizing \texttt{actions/checkout@v2} similar to the first job.
+        \item Retrieves the latest codebase from the repository, uses \texttt{actions/checkout@v2} similar to the first job.
     \end{itemize}
     
     \item \textbf{SSH Configuration:} 
@@ -179,12 +183,25 @@ The \textbf{Deploy} job is activated on successfully completing the \textbf{Buil
 \end{enumerate}
 
  \subsubsection{Release}
- After the previous jobs have been successfully completed, the 
+ After the previous jobs have been successfully completed, this job manages software versioning and public release.
 
-\subsection{Conclusion}
+ \begin{enumerate}
+    \item \textbf{Version Calculation:}
+    \begin{itemize}
+        \item Executes a script to determine the new version number for automated version tracking.
+    \end{itemize}
+    
+    \item \textbf{GitHub Release Creation:}
+    \begin{itemize}
+        \item Uses \texttt{actions/create-release@v1} to create a formal release on GitHub.
+        \item Tags the release with the new version number and provides release notes outlining the changes in this version.
+    \end{itemize}
+\end{enumerate}
+
 
 
 \section{Monitoring}
+For monitoring 
 
 \section{Logging}
 
@@ -210,5 +227,6 @@ The \textbf{Deploy} job is activated on successfully completing the \textbf{Buil
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis enim a nulla molestie, ac feugiat justo egestas. Nullam interdum lorem et neque ullamcorper volutpat sed sit amet tortor. Praesent sit amet aliquet risus, et accumsan mi. Sed facilisis condimentum varius. Praesent et nunc cursus, laoreet nisi a, venenatis nisl. Integer diam magna, iaculis at dapibus et, rutrum in leo. Pellentesque feugiat diam felis, quis ornare eros dignissim et. Maecenas sed laoreet nunc. Morbi porttitor massa id dui aliquam, non ultrices dolor malesuada.
 
 Cras et porta ex. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam erat volutpat. Phasellus eget ipsum sit amet nulla porttitor rhoncus at eget elit. Aenean vulputate, urna sed lacinia luctus, sem nisi iaculis nunc, vitae mattis neque sem in felis. Sed tempor tincidunt dapibus. Morbi porta ex erat, sed ornare mi gravida nec. Phasellus ut nunc venenatis, mollis est vestibulum, laoreet nibh. Mauris in vulputate diam. Nunc ullamcorper vestibulum velit, eget volutpat leo vulputate at. Nam in tortor id dolor elementum lobortis at ut elit. Nulla in interdum mi. Sed aliquam ullamcorper blandit.
+\end{spacing}
 
 \end{document}
