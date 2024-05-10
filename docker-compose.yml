@@ -69,4 +69,3 @@ services:
 networks:
   minitwit-network:
     driver: bridge
-
