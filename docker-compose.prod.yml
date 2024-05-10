@@ -1,11 +1,11 @@
 version: "3.8"
 services:
-   
+
   app:
-    image: 2rius/minitwitimage:latest
-      #build:
-      #  dockerfile: ./Dockerfile
-      #container_name: minitwit-app-instance
+    image: fujiemei02/minitwitimage
+    build:
+      dockerfile: ./Dockerfile
+    container_name: minitwitapp
     ports:
       - "8080:8080"
     deploy:
@@ -16,12 +16,14 @@ services:
       - minitwit-network
     env_file:
       - .env
-      
+    labels:
+      co.elastic.logs/enabled: "true"
+
   api:
-    image: 2rius/minitwitapi:latest
-      #build:
-      #  dockerfile: api/Dockerfile
-      #container_name: minitwit-api-instance
+    image: fujiemei02/minitwitapi
+    build:
+      dockerfile: api/Dockerfile
+    container_name: minitwitapi
     ports:
       - "5000:5000"
     deploy:
@@ -32,6 +34,9 @@ services:
       - minitwit-network
     env_file:
       - .env
+    #THIS IS NEEDED FOR FILEBEAT TO DISCOVER LOGS!!!!!!!!!
+    labels:
+      co.elastic.logs/enabled: "true"
 
   prometheus:
     image: prom/prometheus
@@ -61,9 +66,75 @@ services:
         constraints:
           - node.role == manager
 
+  elasticsearch:
+    image: elasticsearch:7.9.3
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    networks:
+      - elk
+    depends_on:
+      - nginx
+
+
+  kibana:
+    image: kibana:7.9.3
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.9.3
+    user: root
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - logstash
+    command: filebeat -e -strict.perms=false
+    restart: unless-stopped
+    networks:
+      - elk
+
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.9.3
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    networks:
+      - elk
+
+  nginx:
+    image: nginx
+    ports:
+      - 9200:9200
+      - 5601:5601
+      - 5044:5044
+      - 8881:8881
+      - 8882:8882
+    networks:
+      - elk
+    volumes:
+      - type: bind
+        source: nginx.conf
+        target: /etc/nginx/nginx.conf
+      - type: bind
+        source: .htpasswd
+        target: /etc/nginx/.htpasswd
+
+
+volumes:
+  esdata:
 
 
 networks:
   minitwit-network:
     driver: overlay
-
+  elk:
