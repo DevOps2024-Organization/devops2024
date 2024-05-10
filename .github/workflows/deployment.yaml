@@ -112,7 +112,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: Calculate version number
         run: ./.github/scripts/calculate_version.sh
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
