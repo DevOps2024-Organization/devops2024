@@ -99,10 +99,7 @@ services:
     networks:
       - elk
     deploy:
-      placement:
-        constraints:
-          - node.role == manager
-
+      mode: global
 
   logstash:
     image: docker.elastic.co/logstash/logstash:7.9.3
