@@ -14,8 +14,8 @@ services:
       interval: 5s
       timeout: 60s
       retries: 5
-      start_period: 80s  
-   
+      start_period: 80s
+
   app:
     image: 2rius/minitwitimage
     build:
@@ -28,9 +28,9 @@ services:
     env_file:
       - .env
     depends_on:
-      db: 
+      db:
         condition: service_healthy
-      
+
   api:
     image: 2rius/minitwitapi
     build:
@@ -69,3 +69,4 @@ services:
 networks:
   minitwit-network:
     driver: bridge
+

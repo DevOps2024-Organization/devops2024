@@ -1,22 +1,21 @@
 package controllers
 
 import (
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/gin-gonic/gin"
-
-	"net/http"
-
+	"go.uber.org/zap"
+	"minitwit.com/devops/logger"
 	database "minitwit.com/devops/src/database"
 	flash "minitwit.com/devops/src/flash"
 	model "minitwit.com/devops/src/models"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
 )
 
 func GetMessages(user string, page string, c *gin.Context) []map[string]interface{} {
 	var results []map[string]interface{}
-
+	logger.Log.Debug("Getting messages from: ", zap.String("User", user), zap.String("Page", page))
 	user_query := c.Request.URL.Query().Get("username")
 
 	offset, messagesPerPage := LimitMessages(page)
@@ -53,6 +52,7 @@ func LimitMessages(page string) (int, int) {
 func AddMessage(c *gin.Context) {
 	user, err := c.Cookie("token")
 	if err != nil || user == "" {
+		logger.Log.Error("Failed to get token to retrieve messages.")
 		c.Redirect(http.StatusTemporaryRedirect, "/")
 	}
 
@@ -77,6 +77,7 @@ func AddMessage(c *gin.Context) {
 		Text:      message,
 		CreatedAt: t,
 	})
+	logger.Log.Info("Message recorded")
 	flash.SetFlash(c, "message", "Your message was recorded")
 	// Redirect to user timeline with a success message
 	c.Redirect(http.StatusFound, "/user_timeline?message=success")
@@ -84,7 +85,9 @@ func AddMessage(c *gin.Context) {
 
 func GetFollower(follower uint, following uint) bool {
 	var follows []model.Follow
+	logger.Log.Info("Getting followers from: ", zap.Uint("follower", follower), zap.Uint("Following", following))
 	if follower == following {
+		logger.Log.Info("The follower is already following")
 		return false
 	} else {
 		database.DB.Find(&follows).Where("follower = ?", following).Where("following = ?", follower).First(&follows)
