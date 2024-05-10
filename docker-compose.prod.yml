@@ -4,9 +4,6 @@ services:
 
   app:
     image: fujiemei02/minitwitimage
-    build:
-      dockerfile: ./Dockerfile
-    container_name: minitwitapp
     ports:
       - "8080:8080"
     deploy:
@@ -22,9 +19,6 @@ services:
 
   api:
     image: fujiemei02/minitwitapi
-    build:
-      dockerfile: api/Dockerfile
-    container_name: minitwitapi
     ports:
       - "5000:5000"
     deploy:
@@ -78,6 +72,10 @@ services:
       - elk
     depends_on:
       - nginx
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
 
   kibana:
@@ -86,6 +84,10 @@ services:
       - elasticsearch
     networks:
       - elk
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.9.3
@@ -100,6 +102,10 @@ services:
     restart: unless-stopped
     networks:
       - elk
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
 
   logstash:
@@ -111,6 +117,10 @@ services:
     restart: unless-stopped
     networks:
       - elk
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   nginx:
     image: nginx
@@ -129,10 +139,13 @@ services:
       - type: bind
         source: .htpasswd
         target: /etc/nginx/.htpasswd
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
 volumes:
   esdata:
-
 
 networks:
   minitwit-network:
