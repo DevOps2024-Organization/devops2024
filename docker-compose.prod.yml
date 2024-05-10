@@ -137,6 +137,7 @@ services:
         constraints:
           - node.role == manager
 
+
 volumes:
   esdata:
 
