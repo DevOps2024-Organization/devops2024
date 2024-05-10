@@ -1,42 +1,50 @@
 version: "3.8"
 services:
+  db:
+    image: 2rius/db
+    build:
+      dockerfile: ./database/Dockerfile
+    container_name: database
+    ports:
+      - "5432:5432"
+    networks:
+      - minitwit-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 5s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
 
   app:
-    image: fujiemei02/minitwitimage
+    image: 2rius/minitwitimage
     build:
       dockerfile: ./Dockerfile
-    container_name: minitwitapp
+    container_name: minitwit-app-instance
     ports:
       - "8080:8080"
-    deploy:
-      replicas: 3  # Number of instances
-      restart_policy:
-        condition: on-failure
     networks:
       - minitwit-network
     env_file:
       - .env
-    labels:
-      co.elastic.logs/enabled: "true"
+    depends_on:
+      db:
+        condition: service_healthy
 
   api:
-    image: fujiemei02/minitwitapi
+    image: 2rius/minitwitapi
     build:
       dockerfile: api/Dockerfile
-    container_name: minitwitapi
+    container_name: minitwit-api-instance
     ports:
       - "5000:5000"
-    deploy:
-      replicas: 3  # Number of instances
-      restart_policy:
-        condition: on-failure
     networks:
       - minitwit-network
     env_file:
       - .env
-    #THIS IS NEEDED FOR FILEBEAT TO DISCOVER LOGS!!!!!!!!!
-    labels:
-      co.elastic.logs/enabled: "true"
+    depends_on:
+      db:
+        condition: service_healthy
 
   prometheus:
     image: prom/prometheus
@@ -47,10 +55,6 @@ services:
       - "9090:9090"
     networks:
       - minitwit-network
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
 
   grafana:
     image: grafana/grafana
@@ -61,82 +65,8 @@ services:
       - minitwit-network
     depends_on:
       - prometheus
-    deploy:
-      placement:
-        constraints:
-          - node.role == manager
-
-  elasticsearch:
-    image: elasticsearch:7.9.3
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms2g -Xmx2g
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
-    networks:
-      - elk
-    depends_on:
-      - nginx
-
-
-  kibana:
-    image: kibana:7.9.3
-    depends_on:
-      - elasticsearch
-    networks:
-      - elk
-
-  filebeat:
-    image: docker.elastic.co/beats/filebeat:7.9.3
-    user: root
-    volumes:
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - logstash
-    command: filebeat -e -strict.perms=false
-    restart: unless-stopped
-    networks:
-      - elk
-
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.9.3
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
-    networks:
-      - elk
-
-  nginx:
-    image: nginx
-    ports:
-      - 9200:9200
-      - 5601:5601
-      - 5044:5044
-      - 8881:8881
-      - 8882:8882
-    networks:
-      - elk
-    volumes:
-      - type: bind
-        source: nginx.conf
-        target: /etc/nginx/nginx.conf
-      - type: bind
-        source: .htpasswd
-        target: /etc/nginx/.htpasswd
-
-
-volumes:
-  esdata:
-
 
 networks:
   minitwit-network:
-    driver: overlay
-  elk:
-
+    driver: bridge
 
