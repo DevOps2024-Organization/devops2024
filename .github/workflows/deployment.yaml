@@ -88,14 +88,14 @@ jobs:
 
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
-        run:
+        run: |
           echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
           echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
           mv docker-compose.prod.yml docker-compose.yml
-          scp -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no docker-compose.yml prometheus.yml .env $SSH_USER@$SSH_HOST:~
+          scp -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no docker-compose.yml prometheus.yml .htpasswd filebeat.yml nginx.conf logstash.conf .env $SSH_USER@$SSH_HOST:~
           ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose pull && docker stack deploy -c docker-compose.yml minitwit"
           
         env:
@@ -110,10 +110,8 @@ jobs:
     needs: Deploy
     steps:
       - uses: actions/checkout@v2
-
       - name: Calculate version number
         run: ./.github/scripts/calculate_version.sh
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
