@@ -133,7 +133,6 @@ services:
 volumes:
   esdata:
 
-
 networks:
   minitwit-network:
     driver: overlay
