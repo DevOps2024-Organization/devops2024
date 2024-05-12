@@ -125,7 +125,7 @@ func SetupDB() {
 		zap.String("DB_PORT", os.Getenv("DB_PORT")))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		logger.Log.Error("Failed to connect to database", zap.String("Error:", err.Error()))
+		logger.Log.Fatal("Failed to connect to database", zap.String("Error:", err.Error()))
 		panic("Failed to connect to ")
 	}
 	db.AutoMigrate(&model.User{}, &model.Message{}, &model.Follow{})
@@ -322,7 +322,7 @@ func Latest(c *gin.Context) {
 func main() {
 	logger.Log.Info("Starting api...")
 	if err := godotenv.Load(".env"); err != nil {
-		logger.Log.Error("Error loading .env file")
+		logger.Log.Fatal("Error loading .env file")
 	}
 	logger.Log.Info("Setting up db...")
 	SetupDB()
@@ -457,6 +457,8 @@ func main() {
 
 	err := router.Run(":5000")
 	if err != nil {
+		logger.Log.Fatal("Some error occured during the execution of the API",
+			zap.String("error", err.Error()))
 		panic(err)
 	}
 }
