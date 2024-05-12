@@ -22,7 +22,7 @@ func SetupDB() {
 		os.Getenv("DB_PORT"))
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		logger.Log.Error("failed to connect to database")
+		logger.Log.Fatal("failed to connect to database")
 		fmt.Printf("Error: %s", err.Error())
 		panic("Failed to connect to database.")
 	}
