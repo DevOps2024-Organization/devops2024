@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 	"html/template"
 	// "log"
 	"os"
@@ -102,7 +103,7 @@ func main() {
 	logger.Log.Info("Starting endpoint...")
 
 	if err := godotenv.Load(".env"); err != nil {
-		logger.Log.Error("Error loading .env file")
+		logger.Log.Fatal("Error loading .env file")
 		panic("Error loading .env file")
 	}
 	logger.Log.Info("Setting up db...")
@@ -141,6 +142,8 @@ func main() {
 
 	err := router.Run(":8080")
 	if err != nil {
+		logger.Log.Fatal("Some error occured during the execution of the program",
+			zap.String("error", err.Error()))
 		panic(err)
 	}
 }
