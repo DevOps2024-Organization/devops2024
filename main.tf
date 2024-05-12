@@ -8,23 +8,34 @@ terraform {
   }
 }
 
-# Variables defined in tfvars file
-variable "num_workers" {
-  default = 1 # Change to the amount of workers that should be instantiated for the replication
-}
 
+# Variables defined in tfvars file (directory must include a 'terraform.tfvars' file)
+
+# The Digital Ocean token used to create the droplets
 variable "do_token" {}
+# The SSH fingerprint obtained from the added SSH key in Digital Ocean
 variable "ssh_fingerprint" {}
 
+# If deploying to your own team on Digital Ocean, this can only be set to a maximum of 1,
+# since 3 droplets is the limit.
+variable "num_workers" {}
+
+# Database configurations
 variable "db_port" {}
 variable "db_database" {}
 variable "db_user" {}
 variable "db_pass" {}
 
+# Docker login (password can be a generated access token)
+variable "docker_username" {}
+variable "docker_password" {}
+
+
 # Provider used for the resources
 provider "digitalocean" {
   token = var.do_token
 }
+
 
 # Create a droplet for the dbserver
 resource "digitalocean_droplet" "dbserver" {
@@ -48,9 +59,10 @@ resource "digitalocean_droplet" "dbserver" {
 
   provisioner "remote-exec" {
     inline = [
-      # DEBIAN_FRONTEND=noninteractive is necessary to avoid promts when apt-get needs to restart services or update configurations 
+      # DEBIAN_FRONTEND=noninteractive is necessary to avoid promts when apt-get needs to restart services or update configurations
+      # Additionally, the 'until' statements are necessary since errors can occur if other processes are using 'apt-get'
       "sudo DEBIAN_FRONTEND=noninteractive apt-get update",
-      "until sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https ca-certificates curl software-properties-common; do echo 'Dependencies installation failed. Retrying...'; sleep 5; done", # Necessary to include until, since it can include errors if other processes are using it
+      "until sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https ca-certificates curl software-properties-common; do echo 'Dependencies installation failed. Retrying...'; sleep 5; done",
       "sudo install -m 0755 -d /etc/apt/keyrings",
       "sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc",
       "sudo chmod a+r /etc/apt/keyrings/docker.asc",
@@ -69,6 +81,7 @@ resource "digitalocean_droplet" "dbserver" {
     ]
   }
 }
+
 
 # Create a droplet for the webserver
 resource "digitalocean_droplet" "webserver" {
@@ -118,9 +131,10 @@ resource "digitalocean_droplet" "webserver" {
 
   provisioner "remote-exec" {
     inline = [
-      # DEBIAN_FRONTEND=noninteractive is necessary to avoid promts when apt-get needs to restart services or update configurations 
+      # DEBIAN_FRONTEND=noninteractive is necessary to avoid promts when apt-get needs to restart services or update configurations
+      # Additionally, the 'until' statements are necessary since errors can occur if other processes are using 'apt-get'
       "sudo DEBIAN_FRONTEND=noninteractive apt-get update",
-      "until sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https ca-certificates curl software-properties-common; do echo 'Dependencies installation failed. Retrying...'; sleep 5; done", # Necessary to include until, since it can include errors if other processes are using it
+      "until sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https ca-certificates curl software-properties-common; do echo 'Dependencies installation failed. Retrying...'; sleep 5; done",
       "sudo install -m 0755 -d /etc/apt/keyrings",
       "sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc",
       "sudo chmod a+r /etc/apt/keyrings/docker.asc",
@@ -154,6 +168,7 @@ resource "digitalocean_droplet" "webserver" {
   }
 }
 
+
 # Create workers for Docker Swarm
 resource "digitalocean_droplet" "workers" {
   depends_on    = [digitalocean_droplet.webserver]
@@ -182,9 +197,10 @@ resource "digitalocean_droplet" "workers" {
 
   provisioner "remote-exec" {
     inline = [
-      # DEBIAN_FRONTEND=noninteractive is necessary to avoid promts when apt-get needs to restart services or update configurations 
+      # DEBIAN_FRONTEND=noninteractive is necessary to avoid promts when apt-get needs to restart services or update configurations
+      # Additionally, the 'until' statements are necessary since errors can occur if other processes are using 'apt-get'
       "sudo DEBIAN_FRONTEND=noninteractive apt-get update",
-      "until sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https ca-certificates curl software-properties-common; do echo 'Dependencies installation failed. Retrying...'; sleep 5; done", # Necessary to include until, since it can include errors if other processes are using it
+      "until sudo DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https ca-certificates curl software-properties-common; do echo 'Dependencies installation failed. Retrying...'; sleep 5; done",
       "sudo install -m 0755 -d /etc/apt/keyrings",
       "sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc",
       "sudo chmod a+r /etc/apt/keyrings/docker.asc",
@@ -213,12 +229,22 @@ resource "terraform_data" "webserver" {
     private_key = file("~/.ssh/keys/digitalocean/digoc_id_rsa")
   }
 
+  provisioner "local-exec" {
+    command = <<EOT
+      echo ${var.docker_password} | docker login -u ${var.docker_username} --password-stdin
+      docker build -t "${var.docker_username}/minitwitimage:latest" -f ./Dockerfile .
+      docker push "${var.docker_username}/minitwitimage:latest"
+      docker build -t "${var.docker_username}/minitwitapi:latest" -f api/Dockerfile .
+      docker push "${var.docker_username}/minitwitapi:latest"
+    EOT
+  }
+
   provisioner "remote-exec" {
     inline = [
       "docker compose pull",
       "docker stack deploy -c docker-compose.yml minitwit",
-      "echo 'Webserver is now running at: http://${digitalocean_droplet.webserver.ipv4_address}:8080",
-      "echo 'API is now running at: http://${digitalocean_droplet.webserver.ipv4_address}:5000"
+      "echo 'Webserver is now running at: http://${digitalocean_droplet.webserver.ipv4_address}:8080'",
+      "echo 'API is now running at: http://${digitalocean_droplet.webserver.ipv4_address}:5000'"
     ]
   }
 }
