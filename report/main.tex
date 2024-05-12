@@ -1,5 +1,5 @@
 \documentclass[12pt, a4paper, oneside]{book}
-\include{}
+
 \input{preamble}
 
 \title{DevOps, Software Evolution and Software Maintenance, BSc (Spring 2024)}
@@ -33,6 +33,8 @@
     \hline
      Max-Emil Smith Thorius & maxt@itu.dk \\
     \hline
+    Fujie Mei & fume@itu.dk \\
+    \hline
     \end{tabularx}
     \egroup
 \end{center}
@@ -45,12 +47,13 @@
 \section{Design and architecture of the Minitwit system}
 
 
-ITU-MiniTwit is designed as a microservices architecture, leveraging containerization to ensure isolation, ease of deployment, and scalability. The system's architecture facilitates independent development and deployment of services, which enhances maintenance and testing capabilities.
+ITU-MiniTwit is designed as a microservices architecture, leveraging containerization to ensure isolation, ease of deployment, and scalability. The system's architecture facilitates independent development and service deployment, enhancing maintenance and testing capabilities.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{images/ITU-minitwit-architecture.png}
     \caption{High-level ITU-MiniTwit architexture}
-\end{figure}
+\end{figure}\\
+
 Detailed Architecture:
 
 \begin{itemize}
@@ -58,41 +61,147 @@ Detailed Architecture:
 \item API Service:
 
     \subitem Function: Handles all client-server interactions, processing client requests and sending responses back to clients.
-    \subitem Implementation: Implemented using Go, indicated by go.mod files, which is suitable for creating performant and scalable backend services.
-    \subitem Files: Located within the api directory, which contains all the routing and logic for handling HTTP requests.
+    \subitem Implementation: Implemented using Go, which is suitable for creating performant and scalable backend services.
+    \subitem Files: Located within the API directory, which contains all the routing and logic for handling HTTP requests.
 \item Database Service:
     \subitem Function: Manages data storage and retrieval, serving as the persistent storage layer for the application.
-    \subitem Implementation: Utilizes SQL, as suggested by the presence of schema.sql and query.sql, indicating the use of relational database management systems.
+    \subitem Implementation: Utilizes SQL, making use of relational database management systems.
     \subitem Files: The database directory contains scripts and configurations for database setup and management.
 \item Front-end:
     \subitem Function: Provides the user interface through which users interact with the ITU-MiniTwit application.
-    \subitem Implementation: While specific front-end files weren't listed, typically, this would involve HTML, CSS, and JavaScript files possibly served by the Python service or another static file server.
-    \subitem Files: Likely included in the root directory or within a static or templates directory that contains HTML templates and JavaScript files.
+    \subitem Implementation: Usage of HTML, CSS, and JavaScript files served by the Python service.
+    \subitem Files: included in the root directory that contains HTML templates and JavaScript files.
 \item Containerization and Orchestration:
 
-    \subitem Utilizes Docker, as evidenced by Dockerfile and docker-compose.yml, to containerize the application components, ensuring that each component runs in an isolated environment with its dependencies.
+    \subitem Utilizes Docker to containerize the application components, ensuring that each component runs in an isolated environment with its dependencies.
     \subitem Docker Compose helps in defining and running multi-container Docker applications, where services such as the API and database are orchestrated to work together.
 \end{itemize}
 
 
 \section{Dependencies of the Minitwit system}
 
-On the Development Environment:
 
-Vagrant: Used for provisioning virtual environments, ensuring that all developers work within a consistent development environment irrespective of their local machine configurations.
-Makefile: Simplifies project builds, allowing developers to automate complex sequences of tasks with simple commands.
-Programming Languages and Frameworks:
+This section will detail all the technologies, tools, and external services our system depends on, structured into categories for clarity.
 
-Python: Used for scripting and possibly serving web content. The requirements.txt file lists all Python library dependencies.
-Go: Utilizes modern language features of Go for efficient back-end services.
-External APIs and Services:
+1. Development Dependencies
 
-Prometheus: Employed for monitoring the application’s performance metrics, helping in proactive management and optimization of the application performance.
+\begin{itemize}
+ 
+\item   Programming Languages:
+    \subitem   Python: Used for writing backend logic, potentially for web serving and scripting tasks. Dependencies are managed via requirements.txt, which includes libraries for web frameworks, database integration, etc.
+    \subitem Go: Employed for building efficient, compiled services, possibly for high-performance backend components. 
+\item Version Control:
+    \subitem Git: Essential for source code management, allowing version control and collaboration among developers.
+    \subitem GitHub: Hosts the repository and provides additional tools for code reviews, issue tracking, and GitHub Actions for CI/CD.
+
+\item Local Development Environment:
+    \subitem Vagrant: Used to configure and manage virtual development environments that mirror the production environment, ensuring consistency across different machines.
+    \subitem Docker: Provides a containerized environment to run services isolated from the host system, facilitating easier setup and dependency management.
+
+
+\item External APIs and Services:
+    \subitem Graphana?
+    \subitem Prometheus: Employed for monitoring the application’s performance metrics, helping in proactive management and optimization of the application performance.
+\end{itemize}
+
+2. Build and Deployment Dependencies
+Tools and technologies used to build, test, and deploy the ITU-MiniTwit application.
+
+\begin{itemize}
+
+\item Build Tools such as Makefile: Automates the compilation and building process, allowing developers to run predefined scripts for building the application, running tests, and other tasks with simple commands.
+\item Continuous Integration/Continuous Deployment (CI/CD) such as GitHub Actions: Automates the workflow of code integration, testing, and deployment whenever the repository is updated, ensuring that new code changes integrate smoothly and deploy automatically.
+\item Container Orchestration such as Docker Compose: Manages multi-container Docker applications, used in development and production to configure and orchestrate multiple services (API, database, etc.) to work together seamlessly.
+    
+\end{itemize}
+
+3. Runtime Dependencies
+
+\begin{itemize}
+
+\item Server Environment:
+\subitem Docker
+\subitem Linux/Unix: The underlying operating system for servers running Docker containers, providing robustness and stability.
+\item Database Management: SQL Database: Our application uses an SQL database for data persistence, and for database operations and management.
+
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/dockerconfig.png}
+    \caption{Docker Configuration}
+\end{figure}
+
 
 \section{Important interactions of subsystems}
 
-\section{Current state of the system}
+\subsubsection{Information Flow in UML ITU-MiniTwit:}
 
+link for the UML diagrams: \href{https://drive.google.com/file/d/1xU3Uf7EZC5fq4Bzw-O73jOwjMg971a8d/view?usp=sharing}{link1},\href{https://drive.google.com/file/d/1vgYJsYiDPGsxxs7oxMblu9runmONP_LT/view?usp=sharing}{link2}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=\textwidth]{images/uml1.drawio.png}}
+    \caption{Information Flow - UML Sequence diagram}
+    
+\end{figure}
+
+\newpage
+\begin{figure}[H]
+    \centering
+    \fbox{\includegraphics[width=0.8\textwidth]{images/UML2.drawio.png}}
+    \caption{How requests from the simulator traverse your system}
+    
+\end{figure}
+
+\section{Current state of the system}
+Ideas:
+\begin{itemize}
+    
+\item Static Analysis:
+\item Present results from static analysis tools to discuss code quality, potential bugs, and security issues.
+\item Mention any significant findings and how they impact the overall system.
+\item Quality Assessment:
+\item Discuss methods used for assessing the quality of the application (e.g., code reviews, testing coverage).
+\item Summarize the current quality metrics and any goals or benchmarks your team is aiming to achieve.
+\item Using Prometheus, document current performance metrics of the system, analyzing aspects such as response times, system throughput, and error rates.
+
+\end{itemize}
+
+\begin{itemize}
+
+    \item[1.] Static Analysis Results:
+Static analysis tools examine your code without executing it to find potential issues. Here's what to look at:
+
+\item Code Quality Metrics:
+\item Complexity: Measures how complex the logic in your codebase is. Lower complexity often correlates with easier maintenance.
+\item Code Style Compliance: Checks adherence to coding standards and conventions which help in maintaining code consistency.
+\item Potential Bugs: Identification of code patterns that could lead to errors.
+\item Code Smells: Highlight suboptimal code practices that might not cause bugs but could reduce code quality or increase complexity.
+\item Security Vulnerabilities:
+\item Known Vulnerabilities: List of known vulnerabilities in your dependencies or your code that could be exploited.
+\item Security Hotspots: Areas in the code that require a manual review to ensure they are secure.
+\item[2.] Quality Assessments:
+Quality assessments go beyond static code analysis by incorporating other factors such as unit test coverage and integration test results.
+
+
+\item Test Coverage:
+\item Unit Test Coverage: Percentage of your codebase covered by unit tests. High coverage can reduce the likelihood of bugs making it to production.
+\item Integration Test Results: These tests cover interactions between modules or services and help identify issues in the way components integrate.
+\item Performance Metrics:
+\item Response Times: Average time it takes for your system to respond to user actions.
+Resource Usage: Usage statistics for CPU, memory, and other resources. High usage might indicate a need for optimization.
+\item Dependency Health:
+\item Outdated Libraries: Using outdated libraries can expose your system to security vulnerabilities and compatibility issues.
+License Compliance: Ensuring that all library licenses comply with your project's licensing.
+\item 3. System Observability and Monitoring:
+Logs Analysis: Insights into errors and unusual system behavior captured in logs.
+Metrics Dashboard: A real-time dashboard showing key performance metrics.
+Alerts History: Review of past alerts to understand recurring issues or spikes in resource usage.
+\item 4. Development Practices:
+Code Review Practices: Regular code reviews help maintain code quality and mentor junior developers.
+Build and Deployment Frequency: Frequency of deployments can indicate the agility and health of the development process.
+Feature Development Speed: How quickly new features move from conception to production
 % A description and illustration of the:
 % - Design and architecture of your ITU-MiniTwit systems
 % - All dependencies of your ITU-MiniTwit systems on all levels of abstraction and development stages. That is, list and briefly describe all technologies and tools you applied and depend on.
@@ -100,10 +209,8 @@ Prometheus: Employed for monitoring the application’s performance metrics, hel
 %    - For example, via an illustrative UML Sequence diagram that shows the flow of information through your system from user request in the browser, over all subsystems, hitting the database, and a response that is returned to the user.
 %    1- Similarly, another illustrative sequence diagram that shows how requests from the simulator traverse your system.
 % - Describe the current state of your systems, for example using results of static analysis and quality assessments.
+\end{itemize}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis enim a nulla molestie, ac feugiat justo egestas. Nullam interdum lorem et neque ullamcorper volutpat sed sit amet tortor. Praesent sit amet aliquet risus, et accumsan mi. Sed facilisis condimentum varius. Praesent et nunc cursus, laoreet nisi a, venenatis nisl. Integer diam magna, iaculis at dapibus et, rutrum in leo. Pellentesque feugiat diam felis, quis ornare eros dignissim et. Maecenas sed laoreet nunc. Morbi porttitor massa id dui aliquam, non ultrices dolor malesuada.
-
-Cras et porta ex. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam erat volutpat. Phasellus eget ipsum sit amet nulla porttitor rhoncus at eget elit. Aenean vulputate, urna sed lacinia luctus, sem nisi iaculis nunc, vitae mattis neque sem in felis. Sed tempor tincidunt dapibus. Morbi porta ex erat, sed ornare mi gravida nec. Phasellus ut nunc venenatis, mollis est vestibulum, laoreet nibh. Mauris in vulputate diam. Nunc ullamcorper vestibulum velit, eget volutpat leo vulputate at. Nam in tortor id dolor elementum lobortis at ut elit. Nulla in interdum mi. Sed aliquam ullamcorper blandit.
 
 \chapter{Process' perspective}
 % This perspective should clarify how code or other artifacts come from idea into the running system and everything that happens on the way.
@@ -201,10 +308,66 @@ The \textbf{Deploy} job is activated on successfully completing the \textbf{Buil
 
 
 \section{Monitoring}
-For monitoring 
+For monitoring we use Prometheus to collect metrics, and integrate with Grafana for live visualization of key metrics. We have two dashboards, one monitoring the API and the other the database.
+
+\subsection{API dashboard}
+ \begin{enumerate}
+    \item \textbf{Response time:}
+    This chart displays the response times of requests over the past six hours, with separate lines for the slowest 95th and 99th percentile requests.
+
+    \item \textbf{Rate of HTTP requests:}
+    Shows the number of HTTP requests per second, categorized by endpoints.
+    
+    \item \textbf{HTTP Requests Total:}
+    Shows the total number of HTTP requests received, categorized by endpoints.
+    
+    \item \textbf{Total HTTP request errors:}
+    Shows a chart of total HTTP request errors by endpoint.
+    
+    \item \textbf{Bad HTTP request total:}
+    Shows the total number of bad requests made, by endpoint.
+\end{enumerate}
+
+\subsection{Database dashboard}
+ \begin{enumerate}
+    \item \textbf{Amount of users:}
+    Gauge charting user count.
+    
+    \item \textbf{Amount of messages:}
+    Gauge charting message count.    
+    \item \textbf{Amount of follows:}
+    Gauge charting count of follows between users.
+    
+    \item \textbf{Distribution of users by message count:}
+    Bar chart showing count of users by number of messages.
+    \item \textbf{Distribution of users by following count:}
+    Bar chart showing count of users by how many they follow.
+\end{enumerate}
+
+
 
 \section{Logging}
+In the figure below, you can see how our ELKB stack is structured to ship logs to Elasticsearch and further analyze them.
+\begin{figure}[H]
+    \centering
+    \hbox{\hspace{-8em}
+    \includegraphics[scale = 0.35]{images/elk.png}}
+    \caption{ELK stack}
+    \label{fig:elk-stack}
+\end{figure}
 
+What enables the Filebeat to ship logs is a label tag added to our "app" and "api" services which enables Filebeat to autodiscover logs from those containers which has that option enabled. Filebeat will collect logs only containing a timestamp, which are those generated by the logger of our code, and ship them to Logstash where they will be further processed to be outputted to Elasticsearch. Finally, and Devops engineer can analyze and visualize this logs through Kibana through their browser, where the stack will be reversed proxied by Nginx for authentication reasons. \bigskip
+
+What we log in our application is the main events that occurs, we mainly use 4 levels for this purpose: info, debug, error and fatal. We used "info" level to communicate the events in a general level of how things are happening; "debug" for debugging purposes, how parameters are being changed and passed; "error" when the program encounters some non-fatal errors for example in our Go app when the "err" parameter is not nil we notify it with the error level; and finally "fatal" is used for errors that halts or crashes the application. \bigskip
+
+All logs are collected in a single index pattern, from all sources from the "app" and "application. We can distinguish the sources in Kibana because you can see from which folder and which file is the log generated from. Please, see image below:
+\begin{figure}
+    \centering
+    \hbox{\hspace{-5em}
+    \includegraphics[scale = 0.6]{images/kibana.png}}
+    \caption{Logs from Kibana}
+    \label{fig:kabana-logs}
+\end{figure}
 \section{Security assessment}
 
 \section{Scaling strategy}
@@ -228,5 +391,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis enim a 
 
 Cras et porta ex. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam erat volutpat. Phasellus eget ipsum sit amet nulla porttitor rhoncus at eget elit. Aenean vulputate, urna sed lacinia luctus, sem nisi iaculis nunc, vitae mattis neque sem in felis. Sed tempor tincidunt dapibus. Morbi porta ex erat, sed ornare mi gravida nec. Phasellus ut nunc venenatis, mollis est vestibulum, laoreet nibh. Mauris in vulputate diam. Nunc ullamcorper vestibulum velit, eget volutpat leo vulputate at. Nam in tortor id dolor elementum lobortis at ut elit. Nulla in interdum mi. Sed aliquam ullamcorper blandit.
 \end{spacing}
+
+\chapter{Appendix}
+
 
 \end{document}
