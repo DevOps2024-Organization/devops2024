@@ -3,11 +3,11 @@ services:
 
 
   app:
-    image: fujiemei02/minitwitimage
+    image: ${DOCKER_USERNAME}/minitwitimage
     ports:
       - "8080:8080"
     deploy:
-      replicas: 3  # Number of instances
+      replicas: 3
       restart_policy:
         condition: on-failure
     networks:
@@ -18,11 +18,11 @@ services:
       co.elastic.logs/enabled: "true"
 
   api:
-    image: fujiemei02/minitwitapi
+    image: ${DOCKER_USERNAME}/minitwitapi
     ports:
       - "5000:5000"
     deploy:
-      replicas: 3  # Number of instances
+      replicas: 3
       restart_policy:
         condition: on-failure
     networks:

@@ -62,6 +62,7 @@ jobs:
 
       - name: Test Api
         run: |
+          export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
           docker compose build && docker compose up -d
           until curl -s http://localhost:5000/health > /dev/null; do
             sleep 1
@@ -96,7 +97,7 @@ jobs:
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
           mv docker-compose.prod.yml docker-compose.yml
           scp -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no docker-compose.yml prometheus.yml .htpasswd filebeat.yml nginx.conf logstash.conf .env $SSH_USER@$SSH_HOST:~
-          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "docker compose pull &&  docker stack deploy -c docker-compose.yml minitwit"
+          ssh $SSH_USER@$SSH_HOST -i ~/.ssh/do_ssh_key -o StrictHostKeyChecking=no "export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }} && docker compose pull &&  docker stack deploy -c docker-compose.yml minitwit"
           
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
