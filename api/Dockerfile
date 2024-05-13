@@ -5,14 +5,14 @@ FROM golang:latest as builder
 WORKDIR /app
 
 # Copy mod and sum files
-COPY ../go.mod ../go.sum ./
+COPY go.mod go.sum ./
 
 # Download Dependencies
 RUN go mod download
 
 # Copy source from current to Working Directory
 COPY . .
-COPY ../.env /app/
+COPY .env /app/
 
 
 # Build Go app

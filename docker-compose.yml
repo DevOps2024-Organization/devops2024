@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   db:
-    image: 2rius/db
+    image: ${DOCKER_USERNAME}/db
     build:
       dockerfile: ./database/Dockerfile
     container_name: database
@@ -17,7 +17,7 @@ services:
       start_period: 80s
 
   app:
-    image: 2rius/minitwitimage
+    image: ${DOCKER_USERNAME}/minitwitimage
     build:
       dockerfile: ./Dockerfile
     container_name: minitwit-app-instance
@@ -32,7 +32,7 @@ services:
         condition: service_healthy
 
   api:
-    image: 2rius/minitwitapi
+    image: ${DOCKER_USERNAME}/minitwitapi
     build:
       dockerfile: api/Dockerfile
     container_name: minitwit-api-instance
