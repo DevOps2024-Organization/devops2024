@@ -241,6 +241,7 @@ resource "terraform_data" "webserver" {
 
   provisioner "remote-exec" {
     inline = [
+      "export DOCKER_USERNAME=${var.docker_username}",
       "docker compose pull",
       "docker stack deploy -c docker-compose.yml minitwit",
       "echo 'Webserver is now running at: http://${digitalocean_droplet.webserver.ipv4_address}:8080'",
