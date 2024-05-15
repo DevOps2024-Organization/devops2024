@@ -9,7 +9,6 @@ concurrency: production
 
 jobs:
   Deploy:
-    needs: BuildAndTest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
