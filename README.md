@@ -14,18 +14,27 @@ This project is a Twitter-like application designed for the ITU DevOps course, S
 To run the application, follow these steps:
 
 1. ** Clone the repository**
+
 git clone https://github.com/DevOps2024-Organization/devops2024.git
 
-2. Set up Enviroment Variables
+3. Set up Enviroment Variables
 
-3. run
+
+
+4. run
+
 docker stack deploy
 
 ## Authors
+
 dard@itu.dk
+
 hajj@itu.dk
+
 memr@itu.dk
+
 maxt@itu.dk
+
 fume@itu.dk
 
 
