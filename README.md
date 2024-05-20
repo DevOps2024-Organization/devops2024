@@ -43,8 +43,13 @@ docker_password    = "{Docker Password / Access Token}"
 
 3. run
 ```
-docker stack deploy
+terraform plan
 ```
+
+```
+terraform apply
+```
+
 ## Authors
 
 dard@itu.dk
