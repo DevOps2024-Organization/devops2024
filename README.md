@@ -1,78 +1,32 @@
 # ITU DevOps course, Spring 2024
 
-## Run On Local Machine
-Make sure you have a `.env` file in the root folder, and that it contains the following fields:
-```
-# PostgreSQL database configuration
-DB_HOST=localhost
-DB_PORT=5433
-DB_DATABASE=minitwit
-DB_USER=root
-DB_PASS=password
-```
-Then run the following commands:
-```
-make postgresinit
-make createdb
-make run
-```
+## Description
 
-## Docker
-Make sure you have a `.env` file in the root folder, and that it contains the following fields:
-```
-# PostgreSQL database configuration
-DB_HOST=db
-DB_PORT=5432
-DB_DATABASE=minitwit
-DB_USER=root
-DB_PASS=password
-```
-Start service:
-```
-docker-compose build
-docker-compose up -d
-```
+This project is a Twitter-like application designed for the ITU DevOps course, Spring 2024. The application includes essential features such as user registration, login, posing tweets, and viewing timelines. Additionally, it incorporates logging and minitoring using the ELK stack (Elasticsearch, Logstash, and Kibana). The application is containerized using Docker, enabling easy deployment and scalability.
 
-Stop service:
-```
-docker-compose down
-```
+### Key Features
+- User authentication (registration and login)
+- Posting and viewing tweets
+- Real-time logging and monitoring with the ELK stack
+- Dockerized environment for seamless deployment
 
-Stop service and remove container:
-```
-docker-compose down --volumes
-```
+## Executing program
+To run the application, follow these steps:
 
-## API 23/2/2024
-Created API version
-Passed 9/9 tests
+1. ** Clone the repository**
+git clone https://github.com/DevOps2024-Organization/devops2024.git
 
-## Digital Ocean Deployment 27/2/2024
-Deployed to Digital Ocean
-web: http://104.248.43.157:8080/
-API: http://104.248.43.157:5000/
+2. Set up Enviroment Variables
 
-- list of commands: ./docker_notes
-- By running those commands in order, first on the dbserver then on the webserver they will run containers and the webserver will connect to the database.
+3. run
+docker stack deploy
 
-// builds and runs db, app and api locally with docker
-local_minitwit_build_and_run.sh
+## Authors
+dard@itu.dk
+hajj@itu.dk
+memr@itu.dk
+maxt@itu.dk
+fume@itu.dk
 
-// stops and removes containers and images so you can build clean:
-docker_cleanup.sh
 
-## Prometheus and Grafana implementation
-Make sure .env is set:
-DB_HOST=68.183.75.15
-DB_PORT=8080
-DB_DATABASE=minitwit
-DB_USER=root
-DB_PASS=password
 
-Start service:
-
-docker-compose build
-docker-compose up
-
-Stop service:
-docker-compose down
