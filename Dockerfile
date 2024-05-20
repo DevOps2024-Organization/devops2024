@@ -26,7 +26,7 @@ ENV LC_ALL en_US.UTF-8
 RUN adduser -S appgroup && adduser -S appuser -G appgroup
 
 # Create working directory and set ownership
-WORKDIR /root/
+WORKDIR /app
 RUN chown -R appuser:appgroup /app
 
 
