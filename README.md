@@ -17,11 +17,31 @@ To run the application, follow these steps:
 
 git clone https://github.com/DevOps2024-Organization/devops2024.git
 
-3. Set up Enviroment Variables
+2. Set up Enviroment Variables
 
+In root directory of source code in the terraform.tfvars file set the following variables:
 
+```
+do_token           = "{Digital Ocean API Token}"
 
-4. run
+ssh_fingerprint    = "{Fingerprint of Registered SSH Key on Digital Ocean}"
+
+num_workers        = {1 || 2}
+
+db_port            = "{database port}"
+
+db_database        = "{database name}"
+
+db_user            = "{database user}"
+
+db_pass            = "{database password}"
+
+docker_username    = "{Docker Username}"
+
+docker_password    = "{Docker Password / Access Token}"
+```
+
+3. run
 
 docker stack deploy
 
