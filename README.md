@@ -2,7 +2,7 @@
 
 ## Description
 
-This project is a Twitter-like application designed for the ITU DevOps course, Spring 2024. The application includes essential features such as user registration, login, posing tweets, and viewing timelines. Additionally, it incorporates logging and minitoring using the ELK stack (Elasticsearch, Logstash, and Kibana). The application is containerized using Docker, enabling easy deployment and scalability.
+This project is a Twitter-like application designed for the ITU DevOps course, Spring 2024. The application includes essential features such as user registration, login, posting tweets, and viewing timelines. Additionally, it incorporates logging and minitoring using the ELK stack (Elasticsearch, Logstash, and Kibana). The application is containerized using Docker, enabling easy deployment and scalability.
 
 ### Key Features
 - User authentication (registration and login)
