@@ -34,7 +34,7 @@ RUN chown -R appuser:appgroup /app
 COPY --from=builder /app/minitwit /app/minitwit
 
 # Copy other necessary files
-COPY --from=builder /app/.env .
+COPY --from=builder /app/.env /app/.env
 COPY --from=builder /app/src/web/templates ./src/web/templates
 COPY --from=builder /app/src/web/static ./src/web/static
 RUN chown -R appuser:appgroup /app
