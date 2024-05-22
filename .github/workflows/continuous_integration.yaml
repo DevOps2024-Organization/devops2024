@@ -63,6 +63,9 @@ jobs:
       - name: Test Api
         run: |
           export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+          export DB_DATABASE=${{ secrets.DB_DATABASE }}
+          export DB_USER=${{ secrets.DB_USER }}
+          export DB_PASS=${{ secrets.DB_PASS }}
           docker compose build && docker compose up -d
           until curl -s http://localhost:5000/health > /dev/null; do
             sleep 1

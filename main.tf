@@ -76,7 +76,7 @@ resource "digitalocean_droplet" "dbserver" {
       "if ! docker volume inspect database-volume &> /dev/null; then",
       "  docker volume create database-volume",
       "fi",
-      "docker build -t minitwit-postgres -f database/Dockerfile .",
+      "docker build -t minitwit-postgres -f database/Dockerfile --build-arg db=${var.db_database} --build-arg dbuser=${var.db_user} --build-arg dbpassword=${var.db_pass} .",
       "docker run -d --name minitwit-postgres-instance -p ${var.db_port}:5432 -v database-volume:/var/lib/postgresql/data minitwit-postgres"
     ]
   }
