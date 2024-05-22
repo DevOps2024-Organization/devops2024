@@ -9,6 +9,8 @@ ENV POSTGRES_DB=$db
 ENV POSTGRES_USER=$dbuser
 ENV POSTGRES_PASSWORD=$dbpassword
 
+USER postgres
+
 # Expose Postgres port
 EXPOSE 5432
 
