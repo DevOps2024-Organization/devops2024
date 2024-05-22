@@ -4,6 +4,12 @@ services:
     image: ${DOCKER_USERNAME}/db
     build:
       dockerfile: ./database/Dockerfile
+      args:
+        db: ${DB_DATABASE}
+        dbuser: ${DB_USER}
+        dbpassword: ${DB_PASS}
+
+
     container_name: database
     ports:
       - "5432:5432"

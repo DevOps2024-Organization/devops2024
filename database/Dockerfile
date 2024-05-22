@@ -1,9 +1,13 @@
 FROM postgres:latest
 
+ARG db
+ARG dbuser
+ARG dbpassword
+
 # Set environmental variables
-ENV POSTGRES_DB=minitwit
-ENV POSTGRES_USER=minitwit_user
-ENV POSTGRES_PASSWORD=secure_password
+ENV POSTGRES_DB=$db
+ENV POSTGRES_USER=$dbuser
+ENV POSTGRES_PASSWORD=$dbpassword
 
 
 # Create a new non-root user and set password
