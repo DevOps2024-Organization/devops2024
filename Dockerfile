@@ -22,15 +22,26 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8  
 
-WORKDIR /root/
+# Create a non-root user
+RUN addgroup -S appgroup && adduser -S -G appgroup appuser
+
+# Create working directory and set ownership
+WORKDIR /app
+RUN chown -R appuser:appgroup /app
+
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/minitwit .
+COPY --from=builder /app/minitwit /app/minitwit
 
 # Copy other necessary files
-COPY --from=builder /app/.env .
+COPY --from=builder /app/.env /app/.env
 COPY --from=builder /app/src/web/templates ./src/web/templates
 COPY --from=builder /app/src/web/static ./src/web/static
+RUN chown -R appuser:appgroup /app
+
+# Switch to the non-root user
+USER appuser
+
 
 # Expose the port the app runs on
 EXPOSE 8080
