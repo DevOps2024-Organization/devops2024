@@ -51,6 +51,10 @@ jobs:
           file: ./database/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/db
+          build-args: |
+            db=${{ secrets.DB_DATABASE }}
+            dbuser=${{ secrets.DB_USER }}
+            dbpassword=${{ secrets.DB_PASS }}
       - name: Set up Python
         uses: actions/setup-python@v1
         with:
