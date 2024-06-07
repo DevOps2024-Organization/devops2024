@@ -1,4 +1,5 @@
-# ITU DevOps course, Spring 2024
+# ITU DevOps, Software Evolution and Software Maintenance
+Bsc, Spring 2024
 
 ## Description
 
@@ -13,7 +14,7 @@ This project is a Twitter-like application designed for the ITU DevOps course, S
 ## Executing program
 To run the application, follow these steps:
 
-1. ** Clone the repository**
+1. Clone the repository
 ```
 git clone https://github.com/DevOps2024-Organization/devops2024.git
 ```
