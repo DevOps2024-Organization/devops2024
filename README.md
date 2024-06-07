@@ -1,5 +1,4 @@
-# ITU DevOps, Software Evolution and Software Maintenance
-Bsc, Spring 2024
+# DevOps, Software Evolution and Software Maintenance, Bsc, Spring 2024
 
 ## Description
 
