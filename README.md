@@ -53,12 +53,6 @@ terraform plan
 terraform apply
 ```
 
-## Running the Application
-### Build and start the containers:
-
-```
-docker-compose up --build
-```
 ### Access the application:
 ```
 Application: http://localhost:8080
