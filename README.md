@@ -2,12 +2,15 @@
 
 ## Description
 
-This project is a Twitter-like application designed for the ITU DevOps course, Spring 2024. The application includes essential features such as user registration, login, posting tweets, and viewing timelines. Additionally, it incorporates logging and minitoring using the ELK stack (Elasticsearch, Logstash, and Kibana). The application is containerized using Docker, enabling easy deployment and scalability.
+This project is a Twitter-like application designed for the ITU DevOps course, Spring 2024. The application includes essential features such as user registration, login, posting tweets, and viewing timelines. Additionally, it incorporates logging using the ELK stack (Elasticsearch, Logstash, and Kibana) and monitoring using Prometheus and Grafana. The application is containerized using Docker, enabling easy deployment and scalability.
 
-### Key Features
+## Report
+Please find the project report detailing system perspectives such as architecture, dependencies, and the current state of the systems, as well as process perspectives such as CI/CD processes, monitoring, logging, security assessments, scaling strategies, and lessons learned at this [link](https://github.com/DevOps2024-Organization/devops2024/blob/main/report/build/BSc_group_m.pdf).
+
+### Key Features of the Project
 - User authentication (registration and login)
 - Posting and viewing tweets
-- Real-time logging and monitoring with the ELK stack
+- Real-time logging and monitoring
 - Dockerized environment for seamless deployment
 
 ## Executing program
@@ -50,17 +53,25 @@ terraform plan
 terraform apply
 ```
 
+### Access the application:
+```
+Application: http://104.248.43.157:8080/
+API: http://104.248.43.157:5000/
+Grafana: http://104.248.43.157:3000/
+Kibana: http://104.248.43.157:5601/
+
+```
 ## Authors
 
-dard@itu.dk
+Daria Damian (dard@itu.dk)
 
-hajj@itu.dk
+David Zheng (jhou@itu.dk)
 
-memr@itu.dk
+Hallgrímur Jónas Jensson (hajj@itu.dk)
 
-maxt@itu.dk
+Mathias E. L. Rasmussen (memr@itu.dk)
 
-fume@itu.dk
+Max-Emil Smith Thorius (maxt@itu.dk)
 
-jhou@itu.dk
+Fujie Mei (fume@itu.dk)
 
