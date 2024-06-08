@@ -59,6 +59,8 @@ Application: http://localhost:8080
 API: http://localhost:5000
 Kibana: http://localhost:5601
 Grafana: http://localhost:3000
+"http://104.248.43.157:8080",
+        "http://104.248.43.157:5000"
 ```
 ## Authors
 
