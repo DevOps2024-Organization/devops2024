@@ -46,6 +46,10 @@ docker_password    = "{Docker Password / Access Token}"
 
 3. run
 ```
+terraform init
+```
+
+```
 terraform plan
 ```
 
